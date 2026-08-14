@@ -1,0 +1,628 @@
+/**
+ * Données fictives centralisées de la maquette AssainiTrack.
+ * Aucune donnée réelle, aucun appel réseau : tout est statique et sert uniquement
+ * à illustrer les écrans pendant le pitch Govathon.
+ */
+
+/* ------------------------------------------------------------------ */
+/*  Marque                                                            */
+/* ------------------------------------------------------------------ */
+
+export const marque = {
+  nom: 'AssainiTrack',
+  slogan: 'Chaque fosse suivie, chaque boue tracée, chaque dépotoir contrôlé.',
+  baseline:
+    "Plateforme sénégalaise de traçabilité et de dispatching de la vidange des boues de fosses septiques. Complémentaire à l'outil public « Ma Vidange » de l'ONAS.",
+}
+
+/* ------------------------------------------------------------------ */
+/*  Formats                                                           */
+/* ------------------------------------------------------------------ */
+
+export const fcfa = (montant) =>
+  `${Math.round(montant).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} FCFA`
+
+/* ------------------------------------------------------------------ */
+/*  App Ménages — persona                                             */
+/* ------------------------------------------------------------------ */
+
+export const menage = {
+  prenom: 'Aminata',
+  nom: 'Diop',
+  nomComplet: 'Aminata Diop',
+  initiales: 'AD',
+  telephone: '+221 77 123 45 67',
+  quartier: 'Parcelles Assainies Unité 24',
+  adresse: 'Parcelles Assainies U24, Villa 1187 — Dakar',
+  commune: 'Parcelles Assainies',
+  ville: 'Dakar',
+  membresFoyer: 9,
+  typeLogement: 'Maison familiale (R+1)',
+  typeFosse: 'Fosse septique maçonnée — 3 m³',
+  derniereVidange: 'il y a 7 mois',
+  derniereVidangeDate: '12 janvier 2026',
+  clientDepuis: 'mars 2024',
+  vidangesTotal: 5,
+}
+
+export const estimationVidange = {
+  volume: '~8 m³',
+  volumeNum: 8,
+  duree: '45 min',
+  prixMin: 20000,
+  prixMax: 25000,
+  fourchette: '20 000 à 25 000 FCFA',
+  urgence: 'Recommandée sous 2 semaines',
+  facteurs: [
+    { label: 'Personnes au foyer', valeur: '9 personnes' },
+    { label: 'Type de fosse', valeur: 'Septique maçonnée · 3 m³' },
+    { label: 'Dernière vidange', valeur: '12 janvier 2026 (7 mois)' },
+    { label: 'Accès camion', valeur: 'Rue carrossable — accès direct' },
+  ],
+}
+
+export const creneaux = [
+  { id: 'asap', label: 'Dès que possible', detail: 'Sous 45 min', recommande: true },
+  { id: 'today', label: "Aujourd'hui", detail: '16h — 18h' },
+  { id: 'tomorrow', label: 'Demain', detail: '08h — 10h' },
+]
+
+export const typesLogement = [
+  'Maison familiale (R+1)',
+  'Villa individuelle',
+  'Appartement',
+  'Commerce / atelier',
+]
+
+/* ------------------------------------------------------------------ */
+/*  Opérateurs proposés au ménage                                     */
+/* ------------------------------------------------------------------ */
+
+export const operateursDisponibles = [
+  {
+    id: 'op-1',
+    nom: 'Ibrahima Ndiaye',
+    initiales: 'IN',
+    entreprise: 'Ndiaye Assainissement',
+    note: 4.8,
+    avis: 126,
+    delai: 'Disponible dans 45 min',
+    distance: '2,4 km',
+    prix: 22000,
+    camion: 'Camion 8 m³ · DK-4821-A',
+    verifie: true,
+    vidanges: 342,
+    couleur: 'teal',
+  },
+  {
+    id: 'op-2',
+    nom: 'Moussa Fall',
+    initiales: 'MF',
+    entreprise: 'SEN Vidange Express',
+    note: 4.6,
+    avis: 89,
+    delai: 'Disponible dans 1 h 10',
+    distance: '3,8 km',
+    prix: 20000,
+    camion: 'Camion 6 m³ · DK-2290-B',
+    verifie: true,
+    vidanges: 210,
+    couleur: 'navy',
+  },
+  {
+    id: 'op-3',
+    nom: 'Cheikh Sow',
+    initiales: 'CS',
+    entreprise: 'Sow & Frères',
+    note: 4.3,
+    avis: 54,
+    delai: 'Disponible dans 2 h',
+    distance: '5,1 km',
+    prix: 19500,
+    camion: 'Camion 6 m³ · DK-7715-C',
+    verifie: false,
+    vidanges: 96,
+    couleur: 'amber',
+  },
+  {
+    id: 'op-4',
+    nom: 'Fatou Ba',
+    initiales: 'FB',
+    entreprise: 'Teranga Sanitation',
+    note: 4.9,
+    avis: 173,
+    delai: 'Disponible demain 08h',
+    distance: '6,7 km',
+    prix: 25000,
+    camion: 'Camion 10 m³ · DK-1043-D',
+    verifie: true,
+    vidanges: 401,
+    couleur: 'teal',
+  },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Suivi temps réel                                                  */
+/* ------------------------------------------------------------------ */
+
+export const etapesSuivi = [
+  { id: 'accepte', label: 'Accepté', court: 'Accepté', detail: 'Ibrahima a accepté votre demande', icone: 'check' },
+  { id: 'route', label: 'En route', court: 'En route', detail: 'Le camion se dirige vers votre domicile', icone: 'truck' },
+  { id: 'collecte', label: 'Collecte en cours', court: 'Collecte', detail: 'Vidange de la fosse en cours', icone: 'droplet' },
+  { id: 'depotoir', label: 'Vers le dépotoir', court: 'Dépotoir', detail: 'Direction station Tivaouane Peulh', icone: 'route' },
+  { id: 'termine', label: 'Terminé', court: 'Terminé', detail: 'Dépotage certifié conforme', icone: 'flag' },
+]
+
+export const etaSuivi = ['12 min', '8 min', '—', '14 min', 'Terminé']
+
+/* ------------------------------------------------------------------ */
+/*  Paiement                                                          */
+/* ------------------------------------------------------------------ */
+
+export const moyensPaiement = [
+  {
+    id: 'wave',
+    nom: 'Wave',
+    detail: '+221 77 123 45 67',
+    couleur: '#1DC3F5',
+    initiale: 'W',
+    recommande: true,
+  },
+  {
+    id: 'om',
+    nom: 'Orange Money',
+    detail: '+221 77 123 45 67',
+    couleur: '#F5821F',
+    initiale: 'OM',
+  },
+  {
+    id: 'cash',
+    nom: 'Espèces',
+    detail: "Paiement à l'opérateur après le dépotage",
+    couleur: '#5B6B72',
+    initiale: 'FR',
+  },
+]
+
+export const recapitulatif = {
+  operateur: 'Ibrahima Ndiaye',
+  service: 'Vidange fosse septique ~8 m³',
+  prestation: 22000,
+  fraisPlateforme: 500,
+  total: 22500,
+  reference: 'AT-2026-08-4471',
+  station: 'Station Tivaouane Peulh',
+}
+
+/* ------------------------------------------------------------------ */
+/*  Historique ménage                                                 */
+/* ------------------------------------------------------------------ */
+
+export const historiqueVidanges = [
+  {
+    id: 'AT-2026-08-4471',
+    date: "14 août 2026",
+    operateur: 'Ibrahima Ndiaye',
+    initiales: 'IN',
+    montant: 22500,
+    volume: '8 m³',
+    station: 'Tivaouane Peulh',
+    statut: 'Conforme',
+  },
+  {
+    id: 'AT-2026-01-2210',
+    date: '12 janvier 2026',
+    operateur: 'Moussa Fall',
+    initiales: 'MF',
+    montant: 21000,
+    volume: '7 m³',
+    station: 'Cambérène',
+    statut: 'Conforme',
+  },
+  {
+    id: 'AT-2025-06-8873',
+    date: '28 juin 2025',
+    operateur: 'Ibrahima Ndiaye',
+    initiales: 'IN',
+    montant: 20000,
+    volume: '7 m³',
+    station: 'Cambérène',
+    statut: 'Conforme',
+  },
+  {
+    id: 'AT-2024-11-5502',
+    date: '03 novembre 2024',
+    operateur: 'Fatou Ba',
+    initiales: 'FB',
+    montant: 24000,
+    volume: '9 m³',
+    station: 'Pikine',
+    statut: 'Conforme',
+  },
+  {
+    id: 'AT-2024-03-1197',
+    date: '17 mars 2024',
+    operateur: 'Cheikh Sow',
+    initiales: 'CS',
+    montant: 19500,
+    volume: '6 m³',
+    station: 'Rufisque',
+    statut: 'Conforme',
+  },
+]
+
+export const moyensEnregistres = [
+  { id: 'w', nom: 'Wave', detail: '•••• 45 67', couleur: '#1DC3F5', principal: true },
+  { id: 'o', nom: 'Orange Money', detail: '•••• 45 67', couleur: '#F5821F', principal: false },
+]
+
+/* ------------------------------------------------------------------ */
+/*  App Opérateurs — persona                                          */
+/* ------------------------------------------------------------------ */
+
+export const operateur = {
+  nomComplet: 'Ibrahima Ndiaye',
+  initiales: 'IN',
+  entreprise: 'Ndiaye Assainissement',
+  telephone: '+221 77 456 78 90',
+  statut: 'En cours de formalisation',
+  camion: 'Camion 8 m³ · DK-4821-A',
+  zone: 'Dakar Nord — Parcelles, Grand Yoff, Patte d’Oie',
+  note: 4.8,
+  avis: 126,
+  vidangesTotal: 342,
+  membreDepuis: 'février 2025',
+  ninea: 'En cours — dossier déposé le 02/07/2026',
+}
+
+export const demandesProximite = [
+  {
+    id: 'dem-1',
+    client: 'Aminata Diop',
+    initiales: 'AD',
+    quartier: 'Parcelles Assainies U24',
+    adresse: 'Villa 1187, Parcelles Assainies U24',
+    distance: '2,4 km',
+    trajet: '12 min',
+    volume: '~8 m³',
+    prix: 22000,
+    urgence: 'Standard',
+    telephone: '+221 77 123 45 67',
+    typeFosse: 'Fosse septique maçonnée — 3 m³',
+    acces: 'Rue carrossable — accès direct',
+    note: 4.9,
+  },
+  {
+    id: 'dem-2',
+    client: 'Ousmane Sarr',
+    initiales: 'OS',
+    quartier: 'Grand Yoff',
+    adresse: 'Cité Millionnaire, Grand Yoff',
+    distance: '3,1 km',
+    trajet: '15 min',
+    volume: '~6 m³',
+    prix: 20000,
+    urgence: 'Urgent',
+    telephone: '+221 78 220 11 45',
+    typeFosse: 'Fosse septique — 2,5 m³',
+    acces: 'Ruelle étroite — tuyau 20 m',
+    note: 4.5,
+  },
+  {
+    id: 'dem-3',
+    client: 'Ndèye Gueye',
+    initiales: 'NG',
+    quartier: "Patte d'Oie",
+    adresse: "Patte d'Oie Builders, Villa 42",
+    distance: '4,6 km',
+    trajet: '19 min',
+    volume: '~10 m³',
+    prix: 27000,
+    urgence: 'Planifié demain',
+    telephone: '+221 76 909 33 21',
+    typeFosse: 'Fosse septique double — 5 m³',
+    acces: 'Cour intérieure — accès moyen',
+    note: 4.7,
+  },
+  {
+    id: 'dem-4',
+    client: 'Restaurant Kër Teranga',
+    initiales: 'KT',
+    quartier: 'Liberté 6',
+    adresse: 'Liberté 6 extension, Rue GY-118',
+    distance: '5,9 km',
+    trajet: '24 min',
+    volume: '~12 m³',
+    prix: 32000,
+    urgence: 'Urgent',
+    telephone: '+221 77 640 12 08',
+    typeFosse: 'Bac à graisse + fosse — 6 m³',
+    acces: 'Parking privé — accès direct',
+    note: 4.4,
+  },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Stations de traitement                                            */
+/*  `remplissage` = taux d'occupation de la station (100 = saturée).  */
+/* ------------------------------------------------------------------ */
+
+export const stations = [
+  {
+    id: 'st-camberene',
+    nom: 'Cambérène',
+    commune: 'Cambérène, Dakar',
+    remplissage: 74,
+    distance: '9,2 km',
+    trajet: '21 min',
+    attente: '15 min de file',
+    tarif: 3000,
+    statut: 'normal',
+  },
+  {
+    id: 'st-pikine',
+    nom: 'Pikine',
+    commune: 'Pikine Nord',
+    remplissage: 88,
+    distance: '11,4 km',
+    trajet: '28 min',
+    attente: '35 min de file',
+    tarif: 3000,
+    statut: 'tendu',
+  },
+  {
+    id: 'st-rufisque',
+    nom: 'Rufisque',
+    commune: 'Rufisque Est',
+    remplissage: 65,
+    distance: '24,8 km',
+    trajet: '48 min',
+    attente: '10 min de file',
+    tarif: 2500,
+    statut: 'normal',
+  },
+  {
+    id: 'st-tivaouane',
+    nom: 'Tivaouane Peulh',
+    commune: 'Tivaouane Peulh–Niaga',
+    remplissage: 58,
+    distance: '13,6 km',
+    trajet: '26 min',
+    attente: '5 min de file',
+    tarif: 2500,
+    statut: 'normal',
+    recommandee: true,
+  },
+  {
+    id: 'st-niayes',
+    nom: 'Niayes',
+    commune: 'Keur Massar',
+    remplissage: 96,
+    distance: '16,1 km',
+    trajet: '33 min',
+    attente: '1 h 10 de file',
+    tarif: 3000,
+    statut: 'saturee',
+  },
+]
+
+export const stationRecommandee = stations.find((s) => s.recommandee)
+
+/* ------------------------------------------------------------------ */
+/*  Revenus & conformité opérateur                                    */
+/* ------------------------------------------------------------------ */
+
+export const revenusSemaine = [
+  { jour: 'Lun', gains: 44000, vidanges: 2 },
+  { jour: 'Mar', gains: 66000, vidanges: 3 },
+  { jour: 'Mer', gains: 22000, vidanges: 1 },
+  { jour: 'Jeu', gains: 88000, vidanges: 4 },
+  { jour: 'Ven', gains: 71000, vidanges: 3 },
+  { jour: 'Sam', gains: 96000, vidanges: 4 },
+  { jour: 'Dim', gains: 24000, vidanges: 1 },
+]
+
+export const statsOperateur = {
+  gainsSemaine: 411000,
+  gainsMois: 1584000,
+  vidangesSemaine: 18,
+  vidangesMois: 71,
+  noteMoyenne: 4.8,
+  tauxConformite: 100,
+  enAttente: 22000,
+}
+
+export const microCredit = {
+  progression: 75,
+  objectifMois: 12,
+  moisValides: 9,
+  montantEligible: 3500000,
+  partenaire: 'Fonds équipement assainissement — partenaire bancaire',
+  criteres: [
+    { label: 'Historique de dépotages tracés', valeur: '9 / 12 mois', ok: true },
+    { label: 'Taux de dépotage conforme', valeur: '100 %', ok: true },
+    { label: 'Note moyenne ≥ 4,0', valeur: '4,8 / 5', ok: true },
+    { label: 'Formalisation NINEA', valeur: 'Dossier en cours', ok: false },
+  ],
+}
+
+export const badgesOperateur = [
+  { id: 'b1', label: 'Dépotage 100 % conforme', couleur: 'success' },
+  { id: 'b2', label: '300+ vidanges tracées', couleur: 'teal' },
+  { id: 'b3', label: 'Formalisation en cours', couleur: 'warning' },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Dashboard institutionnel                                          */
+/* ------------------------------------------------------------------ */
+
+export const institutions = [
+  { id: 'onas', nom: 'ONAS', detail: 'Office National de l’Assainissement du Sénégal' },
+  { id: 'rufisque', nom: 'Commune de Rufisque', detail: 'Collectivité territoriale' },
+  { id: 'bailleur', nom: 'Bailleur', detail: 'Partenaire technique et financier' },
+]
+
+export const kpis = [
+  { id: 'k1', label: 'Vidanges tracées', valeur: '12 400', variation: '+18 % vs 2025', icone: 'truck', ton: 'navy' },
+  { id: 'k2', label: 'Dépotage conforme', valeur: '87 %', variation: '+9 pts vs 2025', icone: 'shield', ton: 'success' },
+  { id: 'k3', label: 'Opérateurs actifs', valeur: '156', variation: '+34 cette année', icone: 'users', ton: 'teal' },
+  { id: 'k4', label: 'Ménages actifs', valeur: '8 200', variation: '+2 100 cette année', icone: 'home', ton: 'amber' },
+]
+
+export const vidangesMensuelles = [
+  { mois: 'Sep', vidanges: 720, conformes: 588 },
+  { mois: 'Oct', vidanges: 810, conformes: 672 },
+  { mois: 'Nov', vidanges: 865, conformes: 735 },
+  { mois: 'Déc', vidanges: 940, conformes: 808 },
+  { mois: 'Jan', vidanges: 1010, conformes: 878 },
+  { mois: 'Fév', vidanges: 985, conformes: 862 },
+  { mois: 'Mar', vidanges: 1075, conformes: 946 },
+  { mois: 'Avr', vidanges: 1120, conformes: 997 },
+  { mois: 'Mai', vidanges: 1065, conformes: 948 },
+  { mois: 'Juin', vidanges: 1180, conformes: 1062 },
+  { mois: 'Juil', vidanges: 1240, conformes: 1128 },
+  { mois: 'Août', vidanges: 1390, conformes: 1279 },
+]
+
+export const repartitionCommunes = [
+  { commune: 'Parcelles Assainies', vidanges: 2480, conformite: 91 },
+  { commune: 'Pikine', vidanges: 2130, conformite: 84 },
+  { commune: 'Guédiawaye', vidanges: 1760, conformite: 86 },
+  { commune: 'Rufisque', vidanges: 1540, conformite: 88 },
+  { commune: 'Keur Massar', vidanges: 1420, conformite: 79 },
+  { commune: 'Dakar Plateau', vidanges: 1070, conformite: 94 },
+]
+
+/** Marqueurs de la carte régionale (positions en % dans le conteneur). */
+export const marqueursCarte = [
+  { id: 'm1', type: 'encours', x: 22, y: 34, label: 'Vidange en cours — Yoff' },
+  { id: 'm2', type: 'encours', x: 38, y: 52, label: 'Vidange en cours — Grand Yoff' },
+  { id: 'm3', type: 'encours', x: 57, y: 28, label: 'Vidange en cours — Pikine' },
+  { id: 'm4', type: 'encours', x: 70, y: 62, label: 'Vidange en cours — Keur Massar' },
+  { id: 'm5', type: 'conforme', x: 30, y: 66, label: 'Dépotage confirmé — Cambérène' },
+  { id: 'm6', type: 'conforme', x: 46, y: 38, label: 'Dépotage confirmé — Parcelles U24' },
+  { id: 'm7', type: 'conforme', x: 63, y: 45, label: 'Dépotage confirmé — Tivaouane Peulh' },
+  { id: 'm8', type: 'conforme', x: 81, y: 40, label: 'Dépotage confirmé — Rufisque' },
+  { id: 'm9', type: 'conforme', x: 18, y: 52, label: 'Dépotage confirmé — Ouakam' },
+  { id: 'm10', type: 'alerte', x: 52, y: 72, label: 'Zone à risque — Médina Gounass' },
+  { id: 'm11', type: 'alerte', x: 74, y: 24, label: 'Zone à risque — Malika' },
+]
+
+export const legendeCarte = [
+  { type: 'encours', label: 'Vidanges en cours', couleur: '#1D4ED8', valeur: 34 },
+  { type: 'conforme', label: 'Dépotages confirmés', couleur: '#1E9E63', valeur: 212 },
+  { type: 'alerte', label: 'Zones à risque', couleur: '#D64545', valeur: 6 },
+]
+
+export const operateursFormalises = [
+  {
+    id: 'f1',
+    nom: 'Ibrahima Ndiaye',
+    initiales: 'IN',
+    entreprise: 'Ndiaye Assainissement',
+    commune: 'Parcelles Assainies',
+    statut: 'En formalisation',
+    note: 4.8,
+    vidanges: 342,
+    conformite: 100,
+  },
+  {
+    id: 'f2',
+    nom: 'Fatou Ba',
+    initiales: 'FB',
+    entreprise: 'Teranga Sanitation',
+    commune: 'Dakar Plateau',
+    statut: 'Formel',
+    note: 4.9,
+    vidanges: 401,
+    conformite: 98,
+  },
+  {
+    id: 'f3',
+    nom: 'Moussa Fall',
+    initiales: 'MF',
+    entreprise: 'SEN Vidange Express',
+    commune: 'Pikine',
+    statut: 'Formel',
+    note: 4.6,
+    vidanges: 210,
+    conformite: 94,
+  },
+  {
+    id: 'f4',
+    nom: 'Cheikh Sow',
+    initiales: 'CS',
+    entreprise: 'Sow & Frères',
+    commune: 'Guédiawaye',
+    statut: 'En formalisation',
+    note: 4.3,
+    vidanges: 96,
+    conformite: 82,
+  },
+  {
+    id: 'f5',
+    nom: 'Alioune Badara Kane',
+    initiales: 'AK',
+    entreprise: 'ABK Vidange',
+    commune: 'Rufisque',
+    statut: 'Formel',
+    note: 4.5,
+    vidanges: 188,
+    conformite: 96,
+  },
+  {
+    id: 'f6',
+    nom: 'Mariama Sy',
+    initiales: 'MS',
+    entreprise: 'Sy Assainissement',
+    commune: 'Keur Massar',
+    statut: 'En formalisation',
+    note: 4.1,
+    vidanges: 64,
+    conformite: 76,
+  },
+]
+
+export const periodesRapport = [
+  '30 derniers jours',
+  'Trimestre en cours',
+  '12 derniers mois',
+  'Année 2026',
+]
+
+export const communesRapport = [
+  'Toutes les communes',
+  'Parcelles Assainies',
+  'Pikine',
+  'Guédiawaye',
+  'Rufisque',
+  'Keur Massar',
+  'Dakar Plateau',
+]
+
+export const modelesRapport = [
+  {
+    id: 'r1',
+    titre: 'Rapport de conformité des dépotages',
+    detail: 'Volumes dépotés par station, écarts et alertes de saturation',
+    pages: 14,
+  },
+  {
+    id: 'r2',
+    titre: 'Suivi de la formalisation des opérateurs',
+    detail: 'Statut NINEA, notes clients, volumes traités par opérateur',
+    pages: 9,
+  },
+  {
+    id: 'r3',
+    titre: 'Couverture territoriale des ménages',
+    detail: 'Taux de desserte par commune et zones sous-desservies',
+    pages: 11,
+  },
+  {
+    id: 'r4',
+    titre: 'Indicateurs bailleurs (ODD 6.3)',
+    detail: 'Boues traitées en filière contrôlée, impact sanitaire estimé',
+    pages: 18,
+  },
+]

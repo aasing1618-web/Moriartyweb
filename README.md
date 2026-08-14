@@ -1,16 +1,50 @@
-# React + Vite
+# AssainiTrack — maquette de démonstration (Govathon 2026)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Maquette visuelle **cliquable** de la plateforme AssainiTrack : traçabilité et dispatching de la
+vidange des boues de fosses septiques à Dakar. Trois expériences dans un seul projet.
 
-Currently, two official plugins are available:
+> Maquette de pitch, **pas un produit** : aucun backend, aucune base de données, aucune clé d’API,
+> aucun appel réseau. Toutes les données sont fictives et centralisées dans `src/data/mockData.js`.
+> Les animations (camion, scan QR, remplissage de cuve, paiement) sont simulées avec `useState`,
+> `setTimeout` et des transitions CSS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Lancer la démo
 
-## React Compiler
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Parcours de démonstration
 
-## Expanding the Oxlint configuration
+L’écran d’accueil propose trois cartes. Un bouton **« ← Retour au sélecteur »** reste accessible en
+permanence dans chaque expérience.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+**Application Ménages** — Aminata Diop, Parcelles Assainies U24
+Onboarding (3 slides) → Connexion → Code SMS → Accueil → Réservation → Opérateurs disponibles →
+Suivi temps réel *(les étapes avancent seules)* → Paiement → Confirmation + reçu QR → Historique →
+Profil.
+
+**Application Opérateurs** — Ibrahima Ndiaye, en cours de formalisation
+Connexion → Demandes à proximité → Détail demande → Navigation → Vidange en cours *(minuteur)* →
+Orientation vers la station → Scan de dépotage → Revenus → Conformité & micro-crédit → Profil.
+
+**Tableau de bord ONAS / Communes** — plein écran desktop
+Connexion (ONAS / Commune de Rufisque / Bailleur) → Vue d’ensemble (4 KPI + 12 mois) →
+Carte régionale temps réel → Stations de traitement → Opérateurs formalisés → Rapports
+*(l’export affiche une confirmation visuelle, aucun fichier n’est généré)*.
+
+## Structure
+
+```
+src/
+  data/mockData.js      données fictives (personas, opérateurs, stations, KPI…)
+  components/ui/        Button, Card, Badge, StatCard, PhoneFrame, MapCanvas, Gauge, QrCode…
+  apps/menage/          écrans de l’application ménages
+  apps/operateur/       écrans de l’application opérateurs
+  apps/dashboard/       écrans du tableau de bord institutionnel
+  App.jsx               sélecteur de démo + routage par état
+```
+
+Stack : Vite · React 18 · Tailwind CSS · lucide-react · recharts · Poppins (@fontsource).
+Les cartes sont dessinées en SVG/CSS — aucun service cartographique n’est utilisé.
