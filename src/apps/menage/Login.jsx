@@ -1,4 +1,4 @@
-import { Phone, ShieldCheck, ArrowRight } from 'lucide-react'
+import { Phone, ShieldCheck, ShieldAlert, ArrowRight } from 'lucide-react'
 import { Button, Wordmark } from '../../components/ui'
 import { menage } from '../../data/mockData'
 
@@ -44,6 +44,14 @@ export default function Login({ go }) {
           </p>
         </div>
       </div>
+
+      <button
+        onClick={() => go('signalement')}
+        className="mb-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-amber/35 bg-amber/[0.07] py-3 text-[13px] font-semibold text-amber-600 transition hover:bg-amber/[0.12]"
+      >
+        <ShieldAlert size={16} strokeWidth={2.2} />
+        Signaler une vidange clandestine — sans compte
+      </button>
 
       <p className="text-center text-[11px] leading-relaxed text-slateink/80">
         En continuant, vous acceptez les conditions d’utilisation et la politique de confidentialité.

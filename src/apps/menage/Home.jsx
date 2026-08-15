@@ -1,4 +1,13 @@
-import { Bell, MapPin, Clock, ArrowRight, Droplets, ChevronRight, ShieldCheck } from 'lucide-react'
+import {
+  Bell,
+  MapPin,
+  Clock,
+  ArrowRight,
+  Droplets,
+  ChevronRight,
+  ShieldCheck,
+  ShieldAlert,
+} from 'lucide-react'
 import { Avatar, Badge, Button, Card, MapCanvas, MapMarker, ProgressBar } from '../../components/ui'
 import { menage, estimationVidange } from '../../data/mockData'
 
@@ -65,8 +74,18 @@ export default function Home({ go }) {
           </div>
         </Card>
 
-        <Button size="lg" block icon={Droplets} onClick={() => go('booking')} className="mb-3">
+        <Button size="lg" block icon={Droplets} onClick={() => go('booking')} className="mb-2.5">
           Réserver une vidange
+        </Button>
+
+        <Button
+          variant="outline"
+          block
+          icon={ShieldAlert}
+          onClick={() => go('signalement')}
+          className="mb-3 !border-amber/40 !text-amber-600 hover:!bg-amber/[0.07]"
+        >
+          Signaler une vidange clandestine
         </Button>
 
         <div className="grid grid-cols-2 gap-3">

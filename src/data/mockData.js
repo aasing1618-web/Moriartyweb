@@ -191,6 +191,7 @@ export const recapitulatif = {
   fraisPlateforme: 500,
   total: 22500,
   reference: 'AT-2026-08-4471',
+  passeport: 'VID-2026-000458',
   station: 'Station Tivaouane Peulh',
 }
 
@@ -201,6 +202,7 @@ export const recapitulatif = {
 export const historiqueVidanges = [
   {
     id: 'AT-2026-08-4471',
+    passeport: 'VID-2026-000458',
     date: "14 août 2026",
     operateur: 'Ibrahima Ndiaye',
     initiales: 'IN',
@@ -211,6 +213,7 @@ export const historiqueVidanges = [
   },
   {
     id: 'AT-2026-01-2210',
+    passeport: 'VID-2026-000391',
     date: '12 janvier 2026',
     operateur: 'Moussa Fall',
     initiales: 'MF',
@@ -221,6 +224,7 @@ export const historiqueVidanges = [
   },
   {
     id: 'AT-2025-06-8873',
+    passeport: 'VID-2025-000276',
     date: '28 juin 2025',
     operateur: 'Ibrahima Ndiaye',
     initiales: 'IN',
@@ -231,6 +235,7 @@ export const historiqueVidanges = [
   },
   {
     id: 'AT-2024-11-5502',
+    passeport: 'VID-2024-000164',
     date: '03 novembre 2024',
     operateur: 'Fatou Ba',
     initiales: 'FB',
@@ -241,6 +246,7 @@ export const historiqueVidanges = [
   },
   {
     id: 'AT-2024-03-1197',
+    passeport: 'VID-2024-000082',
     date: '17 mars 2024',
     operateur: 'Cheikh Sow',
     initiales: 'CS',
@@ -493,25 +499,86 @@ export const repartitionCommunes = [
   { commune: 'Dakar Plateau', vidanges: 1070, conformite: 94 },
 ]
 
-/** Marqueurs de la carte régionale (positions en % dans le conteneur). */
-export const marqueursCarte = [
-  { id: 'm1', type: 'encours', x: 22, y: 34, label: 'Vidange en cours — Yoff' },
-  { id: 'm2', type: 'encours', x: 38, y: 52, label: 'Vidange en cours — Grand Yoff' },
-  { id: 'm3', type: 'encours', x: 57, y: 28, label: 'Vidange en cours — Pikine' },
-  { id: 'm4', type: 'encours', x: 70, y: 62, label: 'Vidange en cours — Keur Massar' },
-  { id: 'm5', type: 'conforme', x: 30, y: 66, label: 'Dépotage confirmé — Cambérène' },
-  { id: 'm6', type: 'conforme', x: 46, y: 38, label: 'Dépotage confirmé — Parcelles U24' },
-  { id: 'm7', type: 'conforme', x: 63, y: 45, label: 'Dépotage confirmé — Tivaouane Peulh' },
-  { id: 'm8', type: 'conforme', x: 81, y: 40, label: 'Dépotage confirmé — Rufisque' },
-  { id: 'm9', type: 'conforme', x: 18, y: 52, label: 'Dépotage confirmé — Ouakam' },
-  { id: 'm10', type: 'alerte', x: 52, y: 72, label: 'Zone à risque — Médina Gounass' },
-  { id: 'm11', type: 'alerte', x: 74, y: 24, label: 'Zone à risque — Malika' },
+/**
+ * Couches de la carte SIG du tableau de bord.
+ * Positions exprimées en % du conteneur (x = left, y = top) — aucune coordonnée réelle.
+ */
+export const legendeSIG = [
+  { type: 'conforme', label: 'Conforme', couleur: '#1E9E63' },
+  { type: 'surveiller', label: 'À surveiller', couleur: '#E0A200' },
+  { type: 'signalement', label: 'Signalement à vérifier', couleur: '#D64545' },
+  { type: 'station', label: 'Station de traitement', couleur: '#1D4ED8' },
 ]
 
-export const legendeCarte = [
-  { type: 'encours', label: 'Vidanges en cours', couleur: '#1D4ED8', valeur: 34 },
-  { type: 'conforme', label: 'Dépotages confirmés', couleur: '#1E9E63', valeur: 212 },
-  { type: 'alerte', label: 'Zones à risque', couleur: '#D64545', valeur: 6 },
+export const stationsCarte = [
+  { id: 'c1', type: 'conforme', libelle: 'Parcelles Assainies', x: 25, y: 30 },
+  { id: 'c2', type: 'conforme', libelle: 'Mermoz', x: 60, y: 55 },
+  { id: 'c3', type: 'surveiller', libelle: 'Grand Yoff', x: 45, y: 40 },
+  { id: 'c4', type: 'signalement', libelle: 'Pikine', x: 35, y: 60 },
+  { id: 'c5', type: 'signalement', libelle: 'Thiaroye-sur-Mer', x: 70, y: 70 },
+  { id: 'c6', type: 'station', libelle: 'Cambérène — 74% dispo', x: 55, y: 20 },
+  { id: 'c7', type: 'station', libelle: 'Pikine — 88% dispo', x: 30, y: 62 },
+  { id: 'c8', type: 'station', libelle: 'Rufisque — 65% dispo', x: 20, y: 80 },
+  { id: 'c9', type: 'station', libelle: 'Tivaouane Peulh — 58% dispo', x: 75, y: 45 },
+  { id: 'c10', type: 'station', libelle: 'Niayes — 96% dispo (alerte)', x: 40, y: 35, alerte: true },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Vigilance anti-vidange clandestine                                */
+/* ------------------------------------------------------------------ */
+
+/** Pré-remplissage du formulaire de signalement citoyen. */
+export const signalements = {
+  localisation: 'Thiaroye-sur-Mer, zone non autorisée',
+  heure: "Aujourd'hui, 14:32",
+  preuve: 'preuve_1.jpg',
+  placeholderCamion: 'Ex : DK-2234-AB',
+  placeholderCommentaire: 'Décrivez ce que vous avez observé',
+  confirmation: {
+    titre: 'Signalement transmis',
+    texte:
+      "Votre signalement est en attente de vérification par l'ONAS. Merci de contribuer à un assainissement plus sûr.",
+  },
+}
+
+/** File d'instruction des alertes côté institution. */
+export const alertesVerification = [
+  {
+    id: 'a1',
+    type: 'Déviation',
+    reference: 'VID-2026-000441',
+    detail: 'Camion DK-2234-AB',
+    description: 'Sorti du corridor autorisé près de Pikine',
+    temps: 'il y a 12 min',
+    statut: 'À vérifier',
+  },
+  {
+    id: 'a2',
+    type: 'Signalement citoyen',
+    reference: 'Grand Yoff',
+    detail: 'Signalement citoyen',
+    description: 'Photo jointe, camion non identifié',
+    temps: 'il y a 47 min',
+    statut: 'À vérifier',
+  },
+  {
+    id: 'a3',
+    type: 'Déviation',
+    reference: 'VID-2026-000398',
+    detail: 'Camion DK-9981-CD',
+    description: 'Absent à la station Tivaouane Peulh depuis 3h',
+    temps: 'il y a 3h',
+    statut: 'À vérifier',
+  },
+  {
+    id: 'a4',
+    type: 'Signalement citoyen',
+    reference: 'Thiaroye-sur-Mer',
+    detail: 'Signalement citoyen',
+    description: 'Vidéo jointe, camion DK-4410-EF',
+    temps: 'il y a 2h',
+    statut: 'Confirmé',
+  },
 ]
 
 export const operateursFormalises = [

@@ -13,6 +13,7 @@ import Payment from './Payment.jsx'
 import Confirmation from './Confirmation.jsx'
 import History from './History.jsx'
 import Profile from './Profile.jsx'
+import Signalement from './Signalement.jsx'
 
 const NAV = [
   { id: 'home', label: 'Accueil', icon: HomeIcon },
@@ -24,10 +25,14 @@ const AVEC_NAV = ['home', 'history', 'profile']
 
 export default function MenageApp() {
   const [ecran, setEcran] = useState('onboarding')
+  const [precedent, setPrecedent] = useState('home')
   const [operateurChoisi, setOperateurChoisi] = useState(operateursDisponibles[0])
   const [paiement, setPaiement] = useState(moyensPaiement[0])
 
-  const go = (destination) => setEcran(destination)
+  const go = (destination) => {
+    setPrecedent(ecran)
+    setEcran(destination)
+  }
 
   const ecrans = {
     onboarding: <Onboarding go={go} />,
@@ -43,6 +48,7 @@ export default function MenageApp() {
     confirmation: <Confirmation go={go} />,
     history: <History go={go} />,
     profile: <Profile go={go} />,
+    signalement: <Signalement go={go} retour={precedent === 'signalement' ? 'home' : precedent} />,
   }
 
   return (

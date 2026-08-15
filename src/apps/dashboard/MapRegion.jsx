@@ -1,25 +1,72 @@
-import { Radio, Truck, ShieldCheck, AlertTriangle } from 'lucide-react'
-import { Badge, Card, MapCanvas, MapDot, SectionTitle } from '../../components/ui'
-import { marqueursCarte, legendeCarte } from '../../data/mockData'
+import { useState } from 'react'
+import { Radio, ShieldCheck, AlertTriangle, Eye, Factory } from 'lucide-react'
+import { Badge, Card, MapCanvas, SectionTitle } from '../../components/ui'
+import { stationsCarte, legendeSIG } from '../../data/mockData'
 
-const COULEURS = {
-  encours: '#1D4ED8',
-  conforme: '#1E9E63',
-  alerte: '#D64545',
+const COULEURS = Object.fromEntries(legendeSIG.map((l) => [l.type, l.couleur]))
+
+const ICONES = {
+  conforme: ShieldCheck,
+  surveiller: Eye,
+  signalement: AlertTriangle,
+  station: Factory,
 }
 
 const FLUX = [
   { heure: '11h24', texte: 'Dépotage confirmé — station Tivaouane Peulh (8 m³)', type: 'conforme' },
-  { heure: '11h08', texte: 'Vidange démarrée — Parcelles Assainies U24', type: 'encours' },
-  { heure: '10h52', texte: 'Alerte : dépotage non tracé signalé à Malika', type: 'alerte' },
+  { heure: '11h08', texte: 'Vidange démarrée — Parcelles Assainies U24', type: 'conforme' },
+  { heure: '10h52', texte: 'Signalement citoyen à vérifier — Thiaroye-sur-Mer', type: 'signalement' },
   { heure: '10h40', texte: 'Dépotage confirmé — station Cambérène (6 m³)', type: 'conforme' },
-  { heure: '10h21', texte: 'Vidange démarrée — Grand Yoff', type: 'encours' },
-  { heure: '09h58', texte: 'Dépotage confirmé — station Rufisque (10 m³)', type: 'conforme' },
+  { heure: '10h21', texte: 'Corridor quitté par le camion DK-2234-AB — Pikine', type: 'signalement' },
+  { heure: '09h58', texte: 'Rotation inhabituelle à surveiller — Grand Yoff', type: 'surveiller' },
 ]
 
-const ICONES = { conforme: ShieldCheck, encours: Truck, alerte: AlertTriangle }
+/** Marqueur cliquable/survolable avec infobulle (positions en % du conteneur). */
+function Marqueur({ point, actif, onActiver }) {
+  const couleur = COULEURS[point.type]
+  const pulse = point.type === 'signalement' || point.alerte
+
+  return (
+    <button
+      onMouseEnter={() => onActiver(point.id)}
+      onMouseLeave={() => onActiver(null)}
+      onClick={() => onActiver(actif ? null : point.id)}
+      className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+      style={{ left: `${point.x}%`, top: `${point.y}%` }}
+    >
+      <span className="relative flex items-center justify-center">
+        {pulse && (
+          <span
+            className="absolute h-4 w-4 animate-ping-soft rounded-full"
+            style={{ background: couleur }}
+          />
+        )}
+        <span
+          className={`relative block rounded-full border-2 border-white shadow transition-transform ${
+            actif ? 'scale-125' : ''
+          }`}
+          style={{
+            background: couleur,
+            width: point.type === 'station' ? 15 : 13,
+            height: point.type === 'station' ? 15 : 13,
+          }}
+        />
+      </span>
+
+      {actif && (
+        <span className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-xl bg-navy px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-lift">
+          {point.libelle}
+        </span>
+      )}
+    </button>
+  )
+}
 
 export default function MapRegion() {
+  const [actif, setActif] = useState(null)
+
+  const compte = (type) => stationsCarte.filter((p) => p.type === type).length
+
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
       <Card className="xl:col-span-2 !p-6">
@@ -33,26 +80,29 @@ export default function MapRegion() {
           Région de Dakar — activité en direct
         </SectionTitle>
 
-        <MapCanvas className="h-[520px] rounded-3xl border border-navy/[0.06]">
-          {marqueursCarte.map((m) => (
-            <MapDot
-              key={m.id}
-              x={m.x}
-              y={m.y}
-              color={COULEURS[m.type]}
-              pulse={m.type !== 'conforme'}
-              size={m.type === 'alerte' ? 14 : 12}
-              title={m.label}
-            />
+        {/* Légende SIG */}
+        <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl bg-cream px-4 py-3">
+          {legendeSIG.map((l) => (
+            <span key={l.type} className="flex items-center gap-2">
+              <span
+                className="h-3 w-3 rounded-full border-2 border-white shadow"
+                style={{ background: l.couleur }}
+              />
+              <span className="text-[12px] font-semibold text-navy">{l.label}</span>
+            </span>
+          ))}
+        </div>
+
+        <MapCanvas className="h-[480px] rounded-3xl border border-navy/[0.06]">
+          {stationsCarte.map((p) => (
+            <Marqueur key={p.id} point={p} actif={actif === p.id} onActiver={setActif} />
           ))}
 
           {/* Étiquettes de zones */}
           {[
-            { nom: 'Dakar Plateau', x: 12, y: 78 },
-            { nom: 'Parcelles Assainies', x: 40, y: 26 },
-            { nom: 'Pikine', x: 62, y: 18 },
-            { nom: 'Keur Massar', x: 76, y: 68 },
-            { nom: 'Rufisque', x: 88, y: 46 },
+            { nom: 'Dakar Plateau', x: 12, y: 88 },
+            { nom: 'Pikine', x: 62, y: 12 },
+            { nom: 'Keur Massar', x: 85, y: 62 },
           ].map((z) => (
             <span
               key={z.nom}
@@ -62,45 +112,32 @@ export default function MapRegion() {
               {z.nom}
             </span>
           ))}
-
-          {/* Légende */}
-          <div className="absolute bottom-4 left-4 rounded-2xl border border-navy/[0.06] bg-white/95 p-4 shadow-card backdrop-blur">
-            <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-slateink">
-              Légende
-            </p>
-            <div className="space-y-2">
-              {legendeCarte.map((l) => (
-                <div key={l.type} className="flex items-center gap-2.5">
-                  <span
-                    className="h-3 w-3 rounded-full border-2 border-white shadow"
-                    style={{ background: l.couleur }}
-                  />
-                  <span className="text-[12px] font-medium text-navy">{l.label}</span>
-                  <span className="ml-auto pl-4 text-[12px] font-bold text-navy">{l.valeur}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </MapCanvas>
+
+        <p className="mt-3 text-center text-[11.5px] text-slateink">
+          Survolez ou cliquez un marqueur pour afficher le détail de la zone.
+        </p>
       </Card>
 
       <div className="space-y-5">
-        <div className="grid grid-cols-3 gap-3">
-          {legendeCarte.map((l) => (
-            <Card key={l.type} className="!p-4 text-center">
-              <span
-                className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl text-white"
-                style={{ background: l.couleur }}
-              >
-                {(() => {
-                  const Icon = ICONES[l.type]
-                  return <Icon size={16} strokeWidth={2.3} />
-                })()}
-              </span>
-              <p className="mt-2 text-[20px] font-extrabold leading-none text-navy">{l.valeur}</p>
-              <p className="mt-1 text-[10.5px] leading-tight text-slateink">{l.label}</p>
-            </Card>
-          ))}
+        <div className="grid grid-cols-2 gap-3">
+          {legendeSIG.map((l) => {
+            const Icon = ICONES[l.type]
+            return (
+              <Card key={l.type} className="!p-4">
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-xl text-white"
+                  style={{ background: l.couleur }}
+                >
+                  <Icon size={16} strokeWidth={2.3} />
+                </span>
+                <p className="mt-2.5 text-[22px] font-extrabold leading-none text-navy">
+                  {compte(l.type)}
+                </p>
+                <p className="mt-1 text-[11px] leading-tight text-slateink">{l.label}</p>
+              </Card>
+            )
+          })}
         </div>
 
         <Card className="!p-6">

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, ShieldCheck, Star, Download, Home as HomeIcon, X } from 'lucide-react'
+import { Check, ShieldCheck, Star, Download, Home as HomeIcon, X, Fingerprint } from 'lucide-react'
 import { Badge, Button, Card, QrCode, ScreenBody, ScreenFooter } from '../../components/ui'
 import { recapitulatif, menage, fcfa } from '../../data/mockData'
 
@@ -103,6 +103,12 @@ export default function Confirmation({ go }) {
                 <p className="text-[12.5px] font-bold text-navy">Dépotage conforme certifié ✓</p>
                 <p className="text-[11px] text-slateink">{recapitulatif.station}</p>
               </div>
+            </div>
+
+            <div className="!mt-3 flex justify-center">
+              <Badge tone="navy" icon={Fingerprint}>
+                Passeport n° {recapitulatif.passeport}
+              </Badge>
             </div>
           </div>
         </Card>

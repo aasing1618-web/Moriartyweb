@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ScanLine, Check, Wallet, ShieldCheck, ArrowRight } from 'lucide-react'
+import { ScanLine, Check, Wallet, ShieldCheck, ArrowRight, Fingerprint } from 'lucide-react'
 import { Badge, Button, Card, QrCode, ScreenFooter, ScreenHeader } from '../../components/ui'
-import { stationRecommandee, demandesProximite, fcfa } from '../../data/mockData'
+import { stationRecommandee, demandesProximite, recapitulatif, fcfa } from '../../data/mockData'
 
 const MONTANT = demandesProximite[0].prix
 
@@ -64,6 +64,11 @@ export default function Scan({ go }) {
                 <span className="truncate font-semibold text-navy">{valeur}</span>
               </div>
             ))}
+            <div className="flex justify-center py-2.5">
+              <Badge tone="navy" icon={Fingerprint}>
+                Passeport n° {recapitulatif.passeport}
+              </Badge>
+            </div>
           </Card>
 
           <div className="mt-3 flex items-center gap-2.5 rounded-2xl bg-success/[0.08] p-3.5">

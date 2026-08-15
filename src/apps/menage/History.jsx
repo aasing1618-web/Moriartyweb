@@ -1,4 +1,4 @@
-import { ShieldCheck, ChevronRight, Droplets } from 'lucide-react'
+import { ShieldCheck, ChevronRight, Droplets, Fingerprint } from 'lucide-react'
 import { Avatar, Badge, Card, ScreenBody, ScreenHeader } from '../../components/ui'
 import { historiqueVidanges, fcfa } from '../../data/mockData'
 
@@ -41,11 +41,14 @@ export default function History({ go }) {
                   <p className="truncate text-[11.5px] text-slateink">
                     {v.operateur} · {v.volume} · {v.station}
                   </p>
-                  <div className="mt-1.5 flex items-center gap-2">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                     <Badge tone="success" icon={ShieldCheck} size="sm">
                       {v.statut}
                     </Badge>
                     <span className="text-[10.5px] text-slateink">{v.id}</span>
+                    <Badge tone="navy" icon={Fingerprint} size="sm">
+                      Passeport n° {v.passeport}
+                    </Badge>
                   </div>
                 </div>
                 <ChevronRight size={16} className="shrink-0 text-slateink" />

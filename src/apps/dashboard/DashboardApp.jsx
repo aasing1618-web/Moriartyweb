@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard,
   Map,
+  ShieldAlert,
   Factory,
   Users,
   FileBarChart,
@@ -14,6 +15,7 @@ import { Wordmark } from '../../components/ui'
 import LoginInstitution from './LoginInstitution.jsx'
 import Overview from './Overview.jsx'
 import MapRegion from './MapRegion.jsx'
+import Verification from './Verification.jsx'
 import StationsView from './StationsView.jsx'
 import OperateursView from './OperateursView.jsx'
 import Rapports from './Rapports.jsx'
@@ -32,6 +34,13 @@ const MENU = [
     icon: Map,
     titre: 'Carte régionale temps réel',
     sousTitre: 'Vidanges en cours, dépotages confirmés et zones à risque',
+  },
+  {
+    id: 'verification',
+    label: 'Vérification',
+    icon: ShieldAlert,
+    titre: 'Vérification des alertes',
+    sousTitre: 'Déviations de trajet et signalements citoyens à instruire',
   },
   {
     id: 'stations',
@@ -66,6 +75,7 @@ export default function DashboardApp({ onRetour }) {
   const vues = {
     overview: <Overview />,
     carte: <MapRegion />,
+    verification: <Verification />,
     stations: <StationsView />,
     operateurs: <OperateursView />,
     rapports: <Rapports />,

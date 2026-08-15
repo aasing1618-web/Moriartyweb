@@ -1,5 +1,5 @@
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts'
-import { TrendingUp, Star, Truck, Wallet, ArrowUpRight } from 'lucide-react'
+import { TrendingUp, Star, Truck, Wallet, ArrowUpRight, Fingerprint } from 'lucide-react'
 import { Card, ScreenBody, ScreenHeader, SectionTitle, Badge } from '../../components/ui'
 import { revenusSemaine, statsOperateur, historiqueVidanges, fcfa } from '../../data/mockData'
 
@@ -99,6 +99,11 @@ export default function Revenus() {
                     Versé
                   </Badge>
                 </div>
+              </div>
+              <div className="mt-2.5 border-t border-navy/[0.06] pt-2.5">
+                <Badge tone="navy" icon={Fingerprint} size="sm">
+                  Passeport n° {v.passeport}
+                </Badge>
               </div>
             </Card>
           ))}
