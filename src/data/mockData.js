@@ -465,6 +465,7 @@ export const badgesOperateur = [
 export const institutions = [
   { id: 'onas', nom: 'ONAS', detail: 'Office National de l’Assainissement du Sénégal' },
   { id: 'rufisque', nom: 'Commune de Rufisque', detail: 'Collectivité territoriale' },
+  { id: 'police', nom: 'Police de l’assainissement', detail: 'Police de l’assainissement' },
   { id: 'bailleur', nom: 'Bailleur', detail: 'Partenaire technique et financier' },
 ]
 
@@ -541,7 +542,7 @@ export const signalements = {
   },
 }
 
-/** File d'instruction des alertes côté institution. */
+/** File d'instruction des alertes côté institution / régulateur. */
 export const alertesVerification = [
   {
     id: 'a1',
@@ -554,27 +555,40 @@ export const alertesVerification = [
   },
   {
     id: 'a2',
-    type: 'Signalement citoyen',
+    type: 'Signalement anonyme',
+    categorie: 'Camion en infraction',
     reference: 'Grand Yoff',
-    detail: 'Signalement citoyen',
+    detail: 'Camion en infraction',
     description: 'Photo jointe, camion non identifié',
     temps: 'il y a 47 min',
     statut: 'À vérifier',
   },
   {
     id: 'a3',
-    type: 'Déviation',
-    reference: 'VID-2026-000398',
-    detail: 'Camion DK-9981-CD',
-    description: 'Absent à la station Tivaouane Peulh depuis 3h',
-    temps: 'il y a 3h',
+    type: 'Signalement anonyme',
+    categorie: "Rejet d'eaux usées",
+    reference: 'Médina',
+    detail: "Rejet d'eaux usées",
+    description: 'Écoulement dans le caniveau, photo jointe',
+    temps: 'il y a 1h',
     statut: 'À vérifier',
   },
   {
     id: 'a4',
-    type: 'Signalement citoyen',
+    type: 'Signalement anonyme',
+    categorie: 'Vidange non conforme',
+    reference: 'Guédiawaye',
+    detail: 'Vidange non conforme',
+    description: 'Vidange manuelle constatée, localisation jointe',
+    temps: 'il y a 2h',
+    statut: 'À vérifier',
+  },
+  {
+    id: 'a5',
+    type: 'Signalement anonyme',
+    categorie: 'Camion en infraction',
     reference: 'Thiaroye-sur-Mer',
-    detail: 'Signalement citoyen',
+    detail: 'Camion en infraction',
     description: 'Vidéo jointe, camion DK-4410-EF',
     temps: 'il y a 2h',
     statut: 'Confirmé',

@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Map,
   ShieldAlert,
+  Calculator,
   Factory,
   Users,
   FileBarChart,
@@ -16,6 +17,7 @@ import LoginInstitution from './LoginInstitution.jsx'
 import Overview from './Overview.jsx'
 import MapRegion from './MapRegion.jsx'
 import Verification from './Verification.jsx'
+import Tarification from './Tarification.jsx'
 import StationsView from './StationsView.jsx'
 import OperateursView from './OperateursView.jsx'
 import Rapports from './Rapports.jsx'
@@ -36,11 +38,18 @@ const MENU = [
     sousTitre: 'Vidanges en cours, dépotages confirmés et zones à risque',
   },
   {
-    id: 'verification',
-    label: 'Vérification',
+    id: 'signalements',
+    label: 'Signalements',
     icon: ShieldAlert,
-    titre: 'Vérification des alertes',
+    titre: 'Signalements',
     sousTitre: 'Déviations de trajet et signalements citoyens à instruire',
+  },
+  {
+    id: 'tarification',
+    label: 'Tarification',
+    icon: Calculator,
+    titre: 'Tarification & répartition',
+    sousTitre: 'Formule de calcul et clé de répartition de la redevance',
   },
   {
     id: 'stations',
@@ -75,7 +84,8 @@ export default function DashboardApp({ onRetour }) {
   const vues = {
     overview: <Overview />,
     carte: <MapRegion />,
-    verification: <Verification />,
+    signalements: <Verification />,
+    tarification: <Tarification />,
     stations: <StationsView />,
     operateurs: <OperateursView />,
     rapports: <Rapports />,

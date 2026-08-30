@@ -3,6 +3,7 @@ import {
   Smartphone,
   Truck,
   LayoutDashboard,
+  Factory,
   ArrowRight,
   ArrowLeft,
   MapPin,
@@ -14,6 +15,7 @@ import { marque, menage, operateur } from './data/mockData'
 import MenageApp from './apps/menage/MenageApp.jsx'
 import OperateurApp from './apps/operateur/OperateurApp.jsx'
 import DashboardApp from './apps/dashboard/DashboardApp.jsx'
+import DelegataireApp from './apps/delegataire/DelegataireApp.jsx'
 
 const EXPERIENCES = [
   {
@@ -40,14 +42,25 @@ const EXPERIENCES = [
   },
   {
     id: 'dashboard',
-    titre: 'Tableau de bord ONAS / Communes',
+    titre: 'Espace Régulateur',
     accroche: 'Piloter la filière avec des données réelles',
     description:
-      'La vue institutionnelle : indicateurs consolidés, carte régionale temps réel, charge des stations et rapports exportables.',
-    ecrans: ['KPI & tendances', 'Carte régionale', 'Stations', 'Opérateurs', 'Rapports'],
+      'La vue institutionnelle : indicateurs consolidés, carte régionale temps réel, signalements et tarification.',
+    ecrans: ['KPI & tendances', 'Carte régionale', 'Signalements', 'Tarification', 'Stations', 'Opérateurs', 'Rapports'],
     icon: LayoutDashboard,
     couleur: '#E1863B',
-    persona: 'ONAS · Communes · Bailleurs',
+    persona: 'ONAS · Commune de Rufisque · Police de l’assainissement · Bailleur',
+  },
+  {
+    id: 'delegataire',
+    titre: 'Dashboard Délégataire',
+    accroche: 'Gérer la station de traitement et valoriser les sous-produits',
+    description:
+      'La vue exploitant : suivi des arrivées de camions, volumes traités, revenus de redevance et commercialisation du compost et eau traitée.',
+    ecrans: ['Dashboard', 'Arrivées camions', 'Volumes traités', 'Revenus', 'Commandes & valorisation', 'Paramètres'],
+    icon: Factory,
+    couleur: '#2563EB',
+    persona: 'Délégataire — Station Tivaouane Peulh (exploité par Delvic)',
   },
 ]
 
@@ -58,7 +71,7 @@ function Selecteur({ onChoisir }) {
       <div className="pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full bg-teal/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-52 h-[420px] w-[420px] rounded-full bg-amber/10 blur-3xl" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-8 py-10">
+      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-8 py-10">
         <header className="flex items-center justify-between">
           <Wordmark size={46} />
           <div className="flex items-center gap-2">
@@ -80,14 +93,14 @@ function Selecteur({ onChoisir }) {
           </p>
         </div>
 
-        <div className="mt-12 grid flex-1 grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-12 grid flex-1 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {EXPERIENCES.map((exp) => {
             const Icon = exp.icon
             return (
               <button
                 key={exp.id}
                 onClick={() => onChoisir(exp.id)}
-                className="group flex flex-col rounded-3xl border border-navy/[0.07] bg-white p-7 text-left shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft"
+                className="group flex flex-col rounded-3xl border border-navy/[0.07] bg-white p-6 text-left shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft"
               >
                 <span
                   className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lift transition-transform duration-300 group-hover:scale-105"
@@ -96,27 +109,27 @@ function Selecteur({ onChoisir }) {
                   <Icon size={26} strokeWidth={2.1} />
                 </span>
 
-                <h2 className="mt-6 text-[20px] font-bold leading-tight text-navy">{exp.titre}</h2>
-                <p className="mt-1 text-[13px] font-semibold" style={{ color: exp.couleur }}>
+                <h2 className="mt-6 text-[19px] font-bold leading-tight text-navy">{exp.titre}</h2>
+                <p className="mt-1 text-[12.5px] font-semibold" style={{ color: exp.couleur }}>
                   {exp.accroche}
                 </p>
-                <p className="mt-3 text-[13.5px] leading-relaxed text-slateink">{exp.description}</p>
+                <p className="mt-3 text-[13px] leading-relaxed text-slateink">{exp.description}</p>
 
                 <div className="mt-5 flex flex-wrap gap-1.5">
                   {exp.ecrans.map((e) => (
                     <span
                       key={e}
-                      className="rounded-full bg-mist px-2.5 py-1 text-[11px] font-medium text-slateink"
+                      className="rounded-full bg-mist px-2.5 py-1 text-[10.5px] font-medium text-slateink"
                     >
                       {e}
                     </span>
                   ))}
                 </div>
 
-                <span className="mt-auto flex items-center gap-2 pt-7 text-[13.5px] font-bold text-navy">
+                <span className="mt-auto flex items-center gap-2 pt-6 text-[13px] font-bold text-navy">
                   Lancer la démo
                   <ArrowRight
-                    size={17}
+                    size={16}
                     strokeWidth={2.4}
                     className="transition-transform duration-300 group-hover:translate-x-1"
                   />
@@ -183,6 +196,7 @@ export default function App() {
   const [vue, setVue] = useState('selecteur')
 
   if (vue === 'dashboard') return <DashboardApp onRetour={() => setVue('selecteur')} />
+  if (vue === 'delegataire') return <DelegataireApp onRetour={() => setVue('selecteur')} />
 
   if (vue === 'menage' || vue === 'operateur') {
     const experience = EXPERIENCES.find((e) => e.id === vue)
@@ -195,3 +209,4 @@ export default function App() {
 
   return <Selecteur onChoisir={setVue} />
 }
+

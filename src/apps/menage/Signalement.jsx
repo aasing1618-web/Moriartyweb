@@ -24,8 +24,15 @@ function Libelle({ icon: Icon, children, optionnel = false }) {
 }
 
 export default function Signalement({ go, retour = 'home' }) {
+  const [typeSignalement, setTypeSignalement] = useState('Camion en infraction')
   const [preuve, setPreuve] = useState(false)
   const [envoye, setEnvoye] = useState(false)
+
+  const optionsType = [
+    'Camion en infraction',
+    'Rejet d\'eaux usées / vidange non conforme',
+    'Autre problème d\'assainissement',
+  ]
 
   if (envoye) {
     return (
@@ -48,6 +55,7 @@ export default function Signalement({ go, retour = 'home' }) {
 
           <Card className="mt-6 !py-2">
             {[
+              ['Type de signalement', typeSignalement],
               ['Localisation', signalements.localisation],
               ['Heure', signalements.heure],
               ['Pièce jointe', preuve ? signalements.preuve : 'Aucune'],
@@ -66,8 +74,7 @@ export default function Signalement({ go, retour = 'home' }) {
           <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-navy-50 p-3.5">
             <ShieldAlert size={16} className="mt-0.5 shrink-0 text-navy" strokeWidth={2.2} />
             <p className="text-[11.5px] leading-relaxed text-slateink">
-              Les signalements sont instruits par les équipes de l’ONAS et des communes avant toute
-              suite. Votre identité n’est pas transmise à l’opérateur concerné.
+              Les signalements citoyens sont anonymes — aucune identité n'est collectée ni transmise.
             </p>
           </div>
         </ScreenBody>
@@ -84,8 +91,8 @@ export default function Signalement({ go, retour = 'home' }) {
   return (
     <>
       <ScreenHeader
-        title="Signaler une vidange clandestine"
-        subtitle="Signalement citoyen"
+        title="Signaler une infraction"
+        subtitle="Signalement citoyen anonyme"
         onBack={() => go(retour)}
       />
 
@@ -93,12 +100,27 @@ export default function Signalement({ go, retour = 'home' }) {
         <div className="flex items-start gap-2.5 rounded-2xl bg-amber/[0.09] p-3.5">
           <ShieldAlert size={17} className="mt-0.5 shrink-0 text-amber-600" strokeWidth={2.2} />
           <p className="text-[11.5px] leading-relaxed text-slateink">
-            Un dépotage hors station agréée pollue la nappe et les sols. Votre signalement est
-            transmis pour vérification, jamais publié.
+            Les signalements citoyens sont anonymes — aucune identité n'est collectée.
           </p>
         </div>
 
+        {/* Premier champ : Type de signalement */}
         <div className="mt-5">
+          <Libelle icon={ShieldAlert}>Type de signalement</Libelle>
+          <select
+            value={typeSignalement}
+            onChange={(e) => setTypeSignalement(e.target.value)}
+            className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3.5 text-[13.5px] font-bold text-navy shadow-card outline-none transition focus:border-teal cursor-pointer"
+          >
+            {optionsType.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-4">
           <Libelle icon={LocateFixed}>Localisation</Libelle>
           <div className="flex items-center gap-3 rounded-2xl border border-navy/[0.07] bg-mist px-4 py-3.5">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal/10 text-teal">

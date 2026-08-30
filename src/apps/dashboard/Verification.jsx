@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Route, MessageSquareWarning, Check, X, Clock3, ShieldAlert } from 'lucide-react'
+import { Route, MessageSquareWarning, Check, X, Clock3, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { Badge, Button, Card, SectionTitle } from '../../components/ui'
 import { alertesVerification } from '../../data/mockData'
 
 const TYPES = {
   Déviation: { tone: 'danger', icon: Route },
+  'Signalement anonyme': { tone: 'amber', icon: MessageSquareWarning },
   'Signalement citoyen': { tone: 'amber', icon: MessageSquareWarning },
 }
 
@@ -26,11 +27,17 @@ export default function Verification() {
 
   return (
     <div className="space-y-5">
+      {/* Bandeau permanent d'anonymat */}
+      <div className="flex items-center gap-3 rounded-2xl border border-teal/20 bg-teal/10 p-4 text-[13.5px] font-semibold text-navy">
+        <ShieldCheck size={20} className="shrink-0 text-teal" strokeWidth={2.4} />
+        <span>Les signalements citoyens sont anonymes — aucune identité n'est collectée.</span>
+      </div>
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         {[
           { label: 'Alertes à vérifier', valeur: aVerifier, detail: 'en attente d’instruction' },
-          { label: 'Déviations de trajet', valeur: 2, detail: 'corridors quittés aujourd’hui' },
-          { label: 'Signalements citoyens', valeur: 2, detail: 'reçus dans les dernières 24 h' },
+          { label: 'Déviations de trajet', valeur: 1, detail: 'corridors quittés aujourd’hui' },
+          { label: 'Signalements anonymes', valeur: 4, detail: 'reçus dans les dernières 24 h' },
         ].map((s) => (
           <Card key={s.label} className="!p-6">
             <p className="text-[12px] font-medium uppercase tracking-wide text-slateink">
@@ -50,14 +57,14 @@ export default function Verification() {
             </Badge>
           }
         >
-          File d’instruction
+          File d’instruction des signalements
         </SectionTitle>
 
         <div className="space-y-3">
           {alertesVerification.map((a) => {
-            const type = TYPES[a.type]
+            const type = TYPES[a.type] || TYPES['Signalement anonyme']
             const statut = statuts[a.id]
-            const infoStatut = STATUTS[statut]
+            const infoStatut = STATUTS[statut] || STATUTS['À vérifier']
             const TypeIcon = type.icon
 
             return (
@@ -78,12 +85,17 @@ export default function Verification() {
                     <Badge tone={type.tone} size="sm">
                       {a.type}
                     </Badge>
-                    <span className="text-[13.5px] font-bold text-navy">{a.reference}</span>
+                    {a.categorie && (
+                      <span className="text-[12.5px] font-semibold text-navy">
+                        · {a.categorie}
+                      </span>
+                    )}
+                    <span className="text-[13.5px] font-bold text-navy">· {a.reference}</span>
                     {a.type === 'Déviation' && (
                       <span className="text-[12px] text-slateink">· {a.detail}</span>
                     )}
                   </div>
-                  <p className="mt-1.5 text-[13px] text-slateink">{a.description}</p>
+                  <p className="mt-1.5 text-[13px] text-slateink">"{a.description}"</p>
                   <p className="mt-1 text-[11.5px] text-slateink/80">{a.temps}</p>
                 </div>
 
@@ -116,3 +128,4 @@ export default function Verification() {
     </div>
   )
 }
+
