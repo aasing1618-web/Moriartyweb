@@ -16,15 +16,15 @@ function StatusBar({ tone = 'dark' }) {
 
 export default function PhoneFrame({ children, statusTone = 'dark', className = '' }) {
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative flex justify-center max-w-full ${className}`}>
       <div className="absolute -inset-10 -z-10 rounded-[80px] bg-teal/5 blur-2xl" />
-      <div className="relative h-[812px] w-[375px] rounded-[52px] bg-[#0F1A24] p-[11px] shadow-phone">
-        <div className="pointer-events-none absolute inset-0 rounded-[52px] ring-1 ring-white/10" />
-        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[42px] bg-cream">
-          <div className="pointer-events-none absolute left-1/2 top-0 z-40 h-[26px] w-[148px] -translate-x-1/2 rounded-b-[16px] bg-[#0F1A24]" />
+      <div className="relative h-[812px] max-h-[calc(100vh-100px)] sm:max-h-[812px] w-[375px] max-w-[calc(100vw-24px)] rounded-[40px] sm:rounded-[52px] bg-[#0F1A24] p-[8px] sm:p-[11px] shadow-phone">
+        <div className="pointer-events-none absolute inset-0 rounded-[40px] sm:rounded-[52px] ring-1 ring-white/10" />
+        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[32px] sm:rounded-[42px] bg-cream">
+          <div className="pointer-events-none absolute left-1/2 top-0 z-40 h-[22px] sm:h-[26px] w-[120px] sm:w-[148px] -translate-x-1/2 rounded-b-[14px] sm:rounded-b-[16px] bg-[#0F1A24]" />
           <StatusBar tone={statusTone} />
           <div className="relative flex min-h-0 flex-1 flex-col">{children}</div>
-          <div className="pointer-events-none absolute bottom-2 left-1/2 z-40 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-navy/20" />
+          <div className="pointer-events-none absolute bottom-2 left-1/2 z-40 h-[5px] w-[110px] sm:w-[134px] -translate-x-1/2 rounded-full bg-navy/20" />
         </div>
       </div>
     </div>

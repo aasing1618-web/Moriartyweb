@@ -16,6 +16,8 @@ import {
   Sparkles,
   TrendingUp,
   BarChart3,
+  Menu,
+  X,
 } from 'lucide-react'
 import { Wordmark, Card, SectionTitle, Badge, Button } from '../../components/ui'
 
@@ -66,6 +68,7 @@ const MENU = [
 
 export default function DelegataireApp({ onRetour }) {
   const [vue, setVue] = useState('dashboard')
+  const [menuOuvert, setMenuOuvert] = useState(false)
 
   const actif = MENU.find((m) => m.id === vue)
 
@@ -120,19 +123,42 @@ export default function DelegataireApp({ onRetour }) {
   ]
 
   return (
-    <div className="flex h-screen bg-cream">
-      {/* Sidebar Navy */}
-      <aside className="flex w-[264px] shrink-0 flex-col bg-navy px-5 py-6 text-white">
-        <Wordmark size={36} tone="white" />
+    <div className="flex h-screen bg-cream overflow-hidden">
+      {/* Overlay Mobile */}
+      {menuOuvert && (
+        <div
+          className="fixed inset-0 z-40 bg-navy/60 backdrop-blur-sm lg:hidden"
+          onClick={() => setMenuOuvert(false)}
+        />
+      )}
 
-        <nav className="mt-9 flex-1 space-y-1.5">
+      {/* Sidebar Navy */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] shrink-0 flex-col bg-navy px-5 py-6 text-white transition-transform duration-300 lg:static lg:translate-x-0 ${
+          menuOuvert ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <Wordmark size={36} tone="white" />
+          <button
+            onClick={() => setMenuOuvert(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white lg:hidden"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <nav className="mt-8 flex-1 space-y-1.5 overflow-y-auto no-scrollbar">
           {MENU.map((m) => {
             const Icon = m.icon
             const estActif = m.id === vue
             return (
               <button
                 key={m.id}
-                onClick={() => setVue(m.id)}
+                onClick={() => {
+                  setVue(m.id)
+                  setMenuOuvert(false)
+                }}
                 className={`flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left text-[13.5px] font-semibold transition ${
                   estActif
                     ? 'bg-white text-navy shadow-lift'
@@ -147,7 +173,7 @@ export default function DelegataireApp({ onRetour }) {
         </nav>
 
         {/* Persona Délégataire badge */}
-        <div className="rounded-2xl bg-white/10 p-4">
+        <div className="mt-4 rounded-2xl bg-white/10 p-4">
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
               <Building2 size={17} strokeWidth={2.2} />
@@ -170,37 +196,45 @@ export default function DelegataireApp({ onRetour }) {
 
       {/* Main Content Area */}
       <main className="min-w-0 flex-1 overflow-y-auto">
-        <header className="sticky top-0 z-30 border-b border-navy/[0.07] bg-cream/85 px-8 py-5 backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-navy">
-                {actif.titre}
-              </h1>
-              <p className="mt-0.5 text-[13px] text-slateink">{actif.sousTitre}</p>
+        <header className="sticky top-0 z-30 border-b border-navy/[0.07] bg-cream/85 px-4 sm:px-8 py-3.5 sm:py-5 backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={() => setMenuOuvert(true)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-navy/[0.08] bg-white text-navy shadow-card lg:hidden"
+              >
+                <Menu size={20} strokeWidth={2.2} />
+              </button>
+              <div className="min-w-0">
+                <h1 className="truncate text-[18px] sm:text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-navy">
+                  {actif.titre}
+                </h1>
+                <p className="truncate mt-0.5 text-[11.5px] sm:text-[13px] text-slateink">{actif.sousTitre}</p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 rounded-2xl border border-navy/[0.08] bg-white px-3.5 py-2.5 text-[12.5px] font-semibold text-navy shadow-card">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="hidden sm:flex items-center gap-2 rounded-2xl border border-navy/[0.08] bg-white px-3.5 py-2.5 text-[12.5px] font-semibold text-navy shadow-card">
                 <CalendarDays size={15} className="text-teal" strokeWidth={2.2} />
                 14 août 2026
               </span>
 
-              <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-navy/[0.08] bg-white text-navy shadow-card transition hover:bg-navy-50">
-                <Bell size={17} strokeWidth={2.2} />
-                <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-danger ring-2 ring-white" />
+              <button className="relative flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-2xl border border-navy/[0.08] bg-white text-navy shadow-card transition hover:bg-navy-50">
+                <Bell size={16} strokeWidth={2.2} />
+                <span className="absolute right-2 top-2 sm:right-3 sm:top-3 h-2 w-2 rounded-full bg-danger ring-2 ring-white" />
               </button>
 
-              <span className="flex h-11 items-center gap-2.5 rounded-2xl bg-navy px-3.5 text-white shadow-lift">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15 text-[11px] font-bold">
+              <span className="flex h-9 sm:h-11 items-center gap-2.5 rounded-2xl bg-navy px-3 sm:px-3.5 text-white shadow-lift">
+                <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-white/15 text-[10px] sm:text-[11px] font-bold">
                   DE
                 </span>
-                <span className="text-[12.5px] font-semibold">Délégataire — Delvic</span>
+                <span className="text-[11.5px] sm:text-[12.5px] font-semibold truncate max-w-[100px] sm:max-w-none">Délégataire — Delvic</span>
               </span>
             </div>
           </div>
         </header>
 
-        <div key={vue} className="animate-fade-in px-8 pb-10 pt-6 space-y-6">
+        <div key={vue} className="animate-fade-in px-4 sm:px-8 pb-10 pt-4 sm:pt-6 space-y-6">
           {/* Top KPI Cards (visible on Dashboard or across overview) */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="!p-6">
@@ -362,7 +396,7 @@ export default function DelegataireApp({ onRetour }) {
               <p className="text-[13px] text-slateink">
                 Historique quotidien des dépotages à la station de Tivaouane Peulh. La capacité maximale quotidienne est fixée à 165 m³.
               </p>
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2">
                 <div className="rounded-2xl bg-mist p-4">
                   <p className="text-[11.5px] font-semibold text-slateink uppercase">Capacité max/jour</p>
                   <p className="mt-1 text-[22px] font-extrabold text-navy">165 m³</p>

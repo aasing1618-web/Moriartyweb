@@ -71,10 +71,10 @@ function Selecteur({ onChoisir }) {
       <div className="pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full bg-teal/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-52 h-[420px] w-[420px] rounded-full bg-amber/10 blur-3xl" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-8 py-10">
-        <header className="flex items-center justify-between">
-          <Wordmark size={46} />
-          <div className="flex items-center gap-2">
+      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 sm:px-8 py-6 sm:py-10">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Wordmark size={40} className="sm:text-left" />
+          <div className="flex flex-wrap items-center gap-2">
             <Badge tone="teal" icon={Sparkles}>
               Maquette de démonstration
             </Badge>
@@ -84,38 +84,38 @@ function Selecteur({ onChoisir }) {
           </div>
         </header>
 
-        <div className="mt-14 max-w-3xl">
-          <h1 className="text-balance text-[46px] font-extrabold leading-[1.08] tracking-[-0.03em] text-navy">
+        <div className="mt-8 sm:mt-14 max-w-3xl">
+          <h1 className="text-balance text-2xl sm:text-4xl md:text-[46px] font-extrabold leading-[1.1] tracking-[-0.03em] text-navy">
             {marque.slogan}
           </h1>
-          <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-slateink">
+          <p className="mt-3 sm:mt-5 max-w-2xl text-[14px] sm:text-[16px] leading-relaxed text-slateink">
             {marque.baseline}
           </p>
         </div>
 
-        <div className="mt-12 grid flex-1 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 sm:mt-12 grid flex-1 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
           {EXPERIENCES.map((exp) => {
             const Icon = exp.icon
             return (
               <button
                 key={exp.id}
                 onClick={() => onChoisir(exp.id)}
-                className="group flex flex-col rounded-3xl border border-navy/[0.07] bg-white p-6 text-left shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft"
+                className="group flex flex-col rounded-3xl border border-navy/[0.07] bg-white p-5 sm:p-6 text-left shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-soft"
               >
                 <span
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lift transition-transform duration-300 group-hover:scale-105"
+                  className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl text-white shadow-lift transition-transform duration-300 group-hover:scale-105"
                   style={{ background: exp.couleur }}
                 >
-                  <Icon size={26} strokeWidth={2.1} />
+                  <Icon size={24} strokeWidth={2.1} />
                 </span>
 
-                <h2 className="mt-6 text-[19px] font-bold leading-tight text-navy">{exp.titre}</h2>
+                <h2 className="mt-5 sm:mt-6 text-[18px] sm:text-[19px] font-bold leading-tight text-navy">{exp.titre}</h2>
                 <p className="mt-1 text-[12.5px] font-semibold" style={{ color: exp.couleur }}>
                   {exp.accroche}
                 </p>
-                <p className="mt-3 text-[13px] leading-relaxed text-slateink">{exp.description}</p>
+                <p className="mt-2.5 sm:mt-3 text-[13px] leading-relaxed text-slateink">{exp.description}</p>
 
-                <div className="mt-5 flex flex-wrap gap-1.5">
+                <div className="mt-4 sm:mt-5 flex flex-wrap gap-1.5">
                   {exp.ecrans.map((e) => (
                     <span
                       key={e}
@@ -126,7 +126,7 @@ function Selecteur({ onChoisir }) {
                   ))}
                 </div>
 
-                <span className="mt-auto flex items-center gap-2 pt-6 text-[13px] font-bold text-navy">
+                <span className="mt-auto flex items-center gap-2 pt-5 sm:pt-6 text-[13px] font-bold text-navy">
                   Lancer la démo
                   <ArrowRight
                     size={16}
@@ -139,7 +139,7 @@ function Selecteur({ onChoisir }) {
           })}
         </div>
 
-        <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-navy/[0.08] pt-6 text-[12px] text-slateink">
+        <footer className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-navy/[0.08] pt-6 text-[11.5px] sm:text-[12px] text-slateink">
           <span className="flex items-center gap-2">
             <ShieldCheck size={15} className="text-teal" strokeWidth={2.2} />
             Complémentaire au service public « Ma Vidange » de l’ONAS
@@ -153,38 +153,39 @@ function Selecteur({ onChoisir }) {
 
 function ScenePhone({ experience, onRetour, children }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-cream">
+    <div className="relative min-h-screen overflow-hidden bg-cream flex flex-col">
       <div className="pointer-events-none absolute inset-0 bg-grid opacity-50" />
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
         style={{ background: `${experience.couleur}14` }}
       />
 
-      <div className="relative flex h-[88px] items-center justify-between px-8">
+      <div className="relative flex min-h-[64px] sm:h-[88px] items-center justify-between px-4 sm:px-8 py-3 sm:py-0 gap-3 border-b sm:border-b-0 border-navy/[0.06] bg-cream/80 backdrop-blur sm:bg-transparent">
         <button
           onClick={onRetour}
-          className="flex items-center gap-2 rounded-2xl border border-navy/[0.08] bg-white px-4 py-2.5 text-[13px] font-semibold text-navy shadow-card transition hover:-translate-x-0.5 hover:shadow-soft"
+          className="flex items-center gap-2 rounded-2xl border border-navy/[0.08] bg-white px-3.5 sm:px-4 py-2 sm:py-2.5 text-[12.5px] sm:text-[13px] font-semibold text-navy shadow-card transition hover:-translate-x-0.5 hover:shadow-soft"
         >
           <ArrowLeft size={16} strokeWidth={2.4} />
-          Retour au sélecteur
+          <span className="hidden xs:inline">Retour au sélecteur</span>
+          <span className="xs:hidden">Retour</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <div className="text-right">
-            <p className="text-[14px] font-bold leading-tight text-navy">{experience.titre}</p>
-            <p className="text-[11.5px] text-slateink">{experience.persona}</p>
+            <p className="text-[13px] sm:text-[14px] font-bold leading-tight text-navy">{experience.titre}</p>
+            <p className="text-[10.5px] sm:text-[11.5px] text-slateink truncate max-w-[150px] sm:max-w-none">{experience.persona}</p>
           </div>
           <span
-            className="flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-lift"
+            className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl sm:rounded-2xl text-white shadow-lift shrink-0"
             style={{ background: experience.couleur }}
           >
-            <experience.icon size={20} strokeWidth={2.1} />
+            <experience.icon size={18} strokeWidth={2.1} />
           </span>
         </div>
       </div>
 
-      <div className="phone-stage relative">
-        <div className="phone-scale">
+      <div className="phone-stage relative flex-1 py-2 sm:py-0">
+        <div className="phone-scale flex justify-center items-center w-full">
           <PhoneFrame>{children}</PhoneFrame>
         </div>
       </div>
