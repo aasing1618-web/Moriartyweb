@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Calculator, Percent, Truck, Factory, Building2, Sliders, Info } from 'lucide-react'
 import { Card, SectionTitle, Badge } from '../../components/ui'
+import {
+  parametresFinanciers,
+  commissionCommande as commissionCommandeDefaut,
+} from '../../data/mockData'
 
 const fcfaFormat = (val) =>
   `${Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} FCFA`
@@ -8,6 +12,13 @@ const fcfaFormat = (val) =>
 export default function Tarification() {
   const [volume, setVolume] = useState(8)
   const [distance, setDistance] = useState(12)
+
+  // Paramètres de commission pilotés par le régulateur (état local uniquement).
+  const [commissionVidange, setCommissionVidange] = useState(
+    parametresFinanciers.commissionPlateforme
+  )
+  const [commissionCommande, setCommissionCommande] = useState(commissionCommandeDefaut)
+  const [redevanceM3, setRedevanceM3] = useState(parametresFinanciers.redevanceParM3)
 
   // Calcul du 4e cas personnalisé
   const distSupplement = Math.max(0, distance - 5)
@@ -233,6 +244,101 @@ export default function Tarification() {
               </tr>
             </tbody>
           </table>
+        </div>
+      </Card>
+
+      {/* Paramètres de commission — pilotés par l'ONAS */}
+      <Card className="!p-7">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-2 rounded-full bg-amber/12 px-3 py-1 text-[12px] font-semibold text-amber-600">
+              <Sliders size={14} strokeWidth={2.2} />
+              Paramètres de commission
+            </span>
+            <h2 className="text-[20px] font-bold text-navy">Commission plateforme</h2>
+            <p className="text-[13px] text-slateink">
+              Paramétrable par l’ONAS — s’applique à chaque vidange tracée et à chaque commande de
+              sous-produits.
+            </p>
+          </div>
+          <Badge tone="amber" icon={Percent}>
+            Modifiable par le régulateur
+          </Badge>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
+          <label className="block">
+            <span className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-wide text-slateink">
+              Commission par vidange (FCFA)
+            </span>
+            <input
+              type="number"
+              value={commissionVidange}
+              onChange={(e) => setCommissionVidange(Number(e.target.value))}
+              className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3 text-[16px] font-bold text-navy shadow-card outline-none transition focus:border-teal"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-wide text-slateink">
+              Commission par commande (FCFA)
+            </span>
+            <input
+              type="number"
+              value={commissionCommande}
+              onChange={(e) => setCommissionCommande(Number(e.target.value))}
+              className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3 text-[16px] font-bold text-navy shadow-card outline-none transition focus:border-teal"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-wide text-slateink">
+              Redevance de dépotage (FCFA / m³)
+            </span>
+            <input
+              type="number"
+              value={redevanceM3}
+              onChange={(e) => setRedevanceM3(Number(e.target.value))}
+              className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3 text-[16px] font-bold text-navy shadow-card outline-none transition focus:border-teal"
+            />
+          </label>
+        </div>
+
+        <div className="mt-5 rounded-2xl bg-mist p-5">
+          <p className="text-[12px] font-semibold uppercase tracking-wide text-slateink">
+            Simulation sur une vidange de {volume} m³ à {fcfaFormat(prixTotal)}
+          </p>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              {
+                label: 'Part prestation — vidangeur',
+                valeur: fcfaFormat(
+                  Math.max(0, prixTotal - volume * redevanceM3 - commissionVidange)
+                ),
+                couleur: 'text-teal',
+              },
+              {
+                label: 'Redevance de dépotage — délégataire',
+                valeur: fcfaFormat(volume * redevanceM3),
+                couleur: 'text-navy',
+              },
+              {
+                label: 'Commission — plateforme',
+                valeur: fcfaFormat(commissionVidange),
+                couleur: 'text-amber-600',
+              },
+            ].map((p) => (
+              <div key={p.label} className="rounded-2xl bg-white p-4 shadow-card">
+                <p className="text-[11.5px] leading-snug text-slateink">{p.label}</p>
+                <p className={`mt-1.5 text-[18px] font-extrabold ${p.couleur}`}>{p.valeur}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 flex items-start gap-2 text-[11.5px] leading-relaxed text-slateink">
+            <Info size={14} className="mt-0.5 shrink-0 text-teal" strokeWidth={2.2} />
+            La part de l’ONAS n’apparaît pas dans cette répartition : elle remonte du délégataire
+            par contrat de délégation, hors application.
+          </p>
         </div>
       </Card>
     </div>

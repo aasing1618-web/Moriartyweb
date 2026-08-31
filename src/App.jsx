@@ -4,6 +4,7 @@ import {
   Truck,
   LayoutDashboard,
   Factory,
+  Sprout,
   ArrowRight,
   ArrowLeft,
   MapPin,
@@ -16,6 +17,7 @@ import MenageApp from './apps/menage/MenageApp.jsx'
 import OperateurApp from './apps/operateur/OperateurApp.jsx'
 import DashboardApp from './apps/dashboard/DashboardApp.jsx'
 import DelegataireApp from './apps/delegataire/DelegataireApp.jsx'
+import AcheteurApp from './apps/acheteur/AcheteurApp.jsx'
 
 const EXPERIENCES = [
   {
@@ -41,15 +43,15 @@ const EXPERIENCES = [
     persona: operateur.nomComplet,
   },
   {
-    id: 'dashboard',
-    titre: 'Espace Régulateur',
-    accroche: 'Piloter la filière avec des données réelles',
+    id: 'acheteur',
+    titre: 'Espace Acheteur',
+    accroche: 'Acheter les sous-produits valorisés',
     description:
-      'La vue institutionnelle : indicateurs consolidés, carte régionale temps réel, signalements et tarification.',
-    ecrans: ['KPI & tendances', 'Carte régionale', 'Signalements', 'Tarification', 'Stations', 'Opérateurs', 'Rapports'],
-    icon: LayoutDashboard,
-    couleur: '#E1863B',
-    persona: 'ONAS · Commune de Rufisque · Police de l’assainissement · Bailleur',
+      'Le côté aval de la filière : catalogue des boues séchées hygiénisées et de l’eau traitée, commande, suivi et bordereau de conformité.',
+    ecrans: ['Catalogue', 'Fiche qualité', 'Commande', 'Suivi de statut', 'Bordereau'],
+    icon: Sprout,
+    couleur: '#1E9E63',
+    persona: 'GIE Maraîcher des Niayes · AGEROUTE · Collectivités',
   },
   {
     id: 'delegataire',
@@ -61,6 +63,17 @@ const EXPERIENCES = [
     icon: Factory,
     couleur: '#2563EB',
     persona: 'Délégataire — Station Tivaouane Peulh (exploité par Delvic)',
+  },
+  {
+    id: 'dashboard',
+    titre: 'Espace Régulateur',
+    accroche: 'Piloter la filière avec des données réelles',
+    description:
+      'La vue institutionnelle : indicateurs consolidés, carte régionale temps réel, signalements et tarification.',
+    ecrans: ['KPI & tendances', 'Carte régionale', 'Signalements', 'Tarification', 'Stations', 'Opérateurs', 'Rapports'],
+    icon: LayoutDashboard,
+    couleur: '#E1863B',
+    persona: 'ONAS · Commune de Rufisque · Police de l’assainissement · Bailleur',
   },
 ]
 
@@ -93,7 +106,7 @@ function Selecteur({ onChoisir }) {
           </p>
         </div>
 
-        <div className="mt-8 sm:mt-12 grid flex-1 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 sm:mt-12 grid flex-1 grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {EXPERIENCES.map((exp) => {
             const Icon = exp.icon
             return (
@@ -198,6 +211,7 @@ export default function App() {
 
   if (vue === 'dashboard') return <DashboardApp onRetour={() => setVue('selecteur')} />
   if (vue === 'delegataire') return <DelegataireApp onRetour={() => setVue('selecteur')} />
+  if (vue === 'acheteur') return <AcheteurApp onRetour={() => setVue('selecteur')} />
 
   if (vue === 'menage' || vue === 'operateur') {
     const experience = EXPERIENCES.find((e) => e.id === vue)

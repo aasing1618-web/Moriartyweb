@@ -187,32 +187,106 @@ export const moyensPaiement = [
 export const recapitulatif = {
   operateur: 'Ibrahima Ndiaye',
   service: 'Vidange fosse septique ~8 m³',
-  prestation: 22000,
+  prestation: 22500,
+  redevanceDepotage: 2000,
   fraisPlateforme: 500,
-  total: 22500,
+  total: 25000,
   reference: 'AT-2026-08-4471',
   passeport: 'VID-2026-000458',
   station: 'Station Tivaouane Peulh',
 }
 
 /* ------------------------------------------------------------------ */
+/*  Séquestre & répartition au scan du QR                             */
+/*  Le ménage paie une seule fois : les fonds restent bloqués jusqu'au */
+/*  scan du bordereau à la station, qui déclenche la répartition.      */
+/*  Arithmétique locale uniquement — aucun paiement réel.              */
+/* ------------------------------------------------------------------ */
+
+export const parametresFinanciers = {
+  /** Redevance de dépotage due au délégataire, au m³ réellement dépoté. */
+  redevanceParM3: 250,
+  /** Commission plateforme : montant fixe par transaction, paramétrable par l'ONAS. */
+  commissionPlateforme: 500,
+  /** Prix au m³ servant à ajuster le séquestre si le volume réel diffère. */
+  prixParM3: 3000,
+  /** Délai au-delà duquel l'absence de scan déclenche une anomalie. */
+  delaiScanHeures: 24,
+}
+
+/**
+ * Répartition du montant payé en 3 parts : vidangeur, délégataire, plateforme.
+ * L'ONAS n'apparaît pas ici : sa part remonte du délégataire par contrat de
+ * délégation, en dehors de l'application.
+ */
+export const repartition = (montantPaye, volumeM3, params = parametresFinanciers) => {
+  const redevance = Math.round(volumeM3 * params.redevanceParM3)
+  const commission = params.commissionPlateforme
+  return {
+    montantPaye,
+    volumeM3,
+    redevance,
+    commission,
+    net: montantPaye - redevance - commission,
+  }
+}
+
+/**
+ * Ajustement du séquestre quand le volume réel constaté au dépotage diffère
+ * du volume estimé : remboursement au ménage si inférieur, complément si
+ * supérieur. La redevance est toujours recalculée sur le volume réel.
+ */
+export const ajusterSequestre = (
+  montantPaye,
+  volumeEstime,
+  volumeReel,
+  params = parametresFinanciers
+) => {
+  const ecart = volumeReel - volumeEstime
+  const ajustement = Math.round(ecart * params.prixParM3)
+  const montantFinal = montantPaye + ajustement
+  return {
+    ecart,
+    ajustement,
+    sens: ajustement === 0 ? 'aucun' : ajustement < 0 ? 'remboursement' : 'complement',
+    ...repartition(montantFinal, volumeReel, params),
+  }
+}
+
+export const statutsSequestre = {
+  BLOQUE: { label: 'Fonds en séquestre', tone: 'warning' },
+  REPARTI: { label: 'Réparti', tone: 'success' },
+  ANOMALIE_DEPOTAGE: { label: 'ANOMALIE_DEPOTAGE', tone: 'danger' },
+  REMBOURSE: { label: 'Remboursé au ménage', tone: 'neutral' },
+}
+
+/** Compte prépayé du vidangeur (cas des missions réglées en espèces). */
+export const comptePrepaye = {
+  soldeInitial: 1000,
+  rechargement: 10000,
+  seuilAlerte: 5000,
+}
+
+/* ------------------------------------------------------------------ */
 /*  Historique ménage                                                 */
 /* ------------------------------------------------------------------ */
 
-export const historiqueVidanges = [
+const VIDANGES_BRUTES = [
   {
     id: 'AT-2026-08-4471',
+    modePaiement: 'Wave',
     passeport: 'VID-2026-000458',
     date: "14 août 2026",
     operateur: 'Ibrahima Ndiaye',
     initiales: 'IN',
-    montant: 22500,
+    montant: 25000,
     volume: '8 m³',
     station: 'Tivaouane Peulh',
     statut: 'Conforme',
   },
   {
     id: 'AT-2026-01-2210',
+    modePaiement: 'Espèces',
     passeport: 'VID-2026-000391',
     date: '12 janvier 2026',
     operateur: 'Moussa Fall',
@@ -257,6 +331,16 @@ export const historiqueVidanges = [
   },
 ]
 
+/**
+ * Historique enrichi de la répartition réellement appliquée au scan
+ * (montant payé par le ménage → net perçu par le vidangeur).
+ */
+export const historiqueVidanges = VIDANGES_BRUTES.map((v) => ({
+  modePaiement: 'Wave',
+  ...v,
+  ...repartition(v.montant, parseFloat(v.volume)),
+}))
+
 export const moyensEnregistres = [
   { id: 'w', nom: 'Wave', detail: '•••• 45 67', couleur: '#1DC3F5', principal: true },
   { id: 'o', nom: 'Orange Money', detail: '•••• 45 67', couleur: '#F5821F', principal: false },
@@ -284,6 +368,7 @@ export const operateur = {
 export const demandesProximite = [
   {
     id: 'dem-1',
+    modePaiement: 'Wave',
     client: 'Aminata Diop',
     initiales: 'AD',
     quartier: 'Parcelles Assainies U24',
@@ -300,6 +385,7 @@ export const demandesProximite = [
   },
   {
     id: 'dem-2',
+    modePaiement: 'Espèces',
     client: 'Ousmane Sarr',
     initiales: 'OS',
     quartier: 'Grand Yoff',
@@ -316,6 +402,7 @@ export const demandesProximite = [
   },
   {
     id: 'dem-3',
+    modePaiement: 'Orange Money',
     client: 'Ndèye Gueye',
     initiales: 'NG',
     quartier: "Patte d'Oie",
@@ -332,6 +419,7 @@ export const demandesProximite = [
   },
   {
     id: 'dem-4',
+    modePaiement: 'Espèces',
     client: 'Restaurant Kër Teranga',
     initiales: 'KT',
     quartier: 'Liberté 6',
@@ -593,6 +681,18 @@ export const alertesVerification = [
     temps: 'il y a 2h',
     statut: 'Confirmé',
   },
+  {
+    id: 'a6',
+    type: 'Anomalie de dépotage',
+    categorie: 'ANOMALIE_DEPOTAGE',
+    reference: 'VID-2026-000452',
+    detail: 'Camion DK-7715-C',
+    description:
+      "Aucun scan de dépotage sous 24 h — 21 000 F gelés en séquestre, aucune répartition n'a eu lieu",
+    temps: 'il y a 26h',
+    statut: 'À vérifier',
+    fondsGeles: 21000,
+  },
 ]
 
 export const operateursFormalises = [
@@ -705,5 +805,162 @@ export const modelesRapport = [
     titre: 'Indicateurs bailleurs (ODD 6.3)',
     detail: 'Boues traitées en filière contrôlée, impact sanitaire estimé',
     pages: 18,
+  },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Espace Acheteur — valorisation des sous-produits                  */
+/* ------------------------------------------------------------------ */
+
+export const usagesAcheteur = ['Agriculture', 'Travaux routiers/BTP', 'Espaces verts', 'Autre']
+
+export const typesProfilAcheteur = [
+  'Agriculteur ou GIE maraîcher',
+  'Entreprise BTP (AGEROUTE et attributaires)',
+  'Collectivité',
+  'Industriel',
+]
+
+export const profilAcheteur = {
+  raisonSociale: 'GIE Maraîcher des Niayes',
+  type: 'Agriculteur ou GIE maraîcher',
+  ninea: '005 812 347 2V2',
+  contact: 'Awa Sarr — +221 77 845 12 30',
+  zone: 'Niayes — Sangalkam / Keur Massar',
+  usageDeclare: 'Agriculture',
+  initiales: 'GN',
+  clientDepuis: 'avril 2026',
+}
+
+export const produitsValorisation = [
+  {
+    id: 'p1',
+    nom: 'Amendement organique — boues séchées hygiénisées',
+    categorie: 'Amendement organique',
+    station: 'Tivaouane Peulh',
+    quantite: 12,
+    unite: 'tonnes',
+    prix: 45000,
+    prixUnite: 'FCFA / tonne',
+    usages: ['Agriculture', 'Espaces verts'],
+    fiche: {
+      traitement: 'Séchage sur lits plantés puis hygiénisation (60 jours)',
+      matiereSeche: '78 %',
+      azote: '1,9 % N',
+      phosphore: '1,2 % P₂O₅',
+      coliformes: 'Conforme — < 1 000 UFC/g',
+      normes: 'Conforme norme NS 05-061 (réutilisation agricole)',
+      conditionnement: 'Vrac ou sacs de 50 kg',
+    },
+  },
+  {
+    id: 'p2',
+    nom: 'Amendement organique — compost affiné',
+    categorie: 'Amendement organique',
+    station: 'Cambérène',
+    quantite: 6,
+    unite: 'tonnes',
+    prix: 52000,
+    prixUnite: 'FCFA / tonne',
+    usages: ['Agriculture', 'Espaces verts'],
+    fiche: {
+      traitement: 'Compostage en andains, criblage 10 mm',
+      matiereSeche: '82 %',
+      azote: '2,3 % N',
+      phosphore: '1,5 % P₂O₅',
+      coliformes: 'Conforme — < 1 000 UFC/g',
+      normes: 'Conforme norme NS 05-061 (réutilisation agricole)',
+      conditionnement: 'Sacs de 50 kg',
+    },
+  },
+  {
+    id: 'p3',
+    nom: 'Eau traitée non potable',
+    categorie: 'Eau traitée',
+    station: 'Tivaouane Peulh',
+    quantite: 340,
+    unite: 'm³',
+    prix: 800,
+    prixUnite: 'FCFA / m³',
+    usages: ['Travaux routiers/BTP', 'Espaces verts'],
+    fiche: {
+      traitement: 'Lagunage + filtration — usage non potable',
+      dbo5: '< 25 mg/L',
+      mes: '< 30 mg/L',
+      coliformes: 'Conforme — < 1 000 UFC/100 mL',
+      normes: 'Conforme norme NS 05-061 (réutilisation non potable)',
+      conditionnement: 'Pompage citerne sur site',
+    },
+  },
+  {
+    id: 'p4',
+    nom: 'Eau traitée non potable — compactage de chaussée',
+    categorie: 'Eau traitée',
+    station: 'Rufisque',
+    quantite: 180,
+    unite: 'm³',
+    prix: 750,
+    prixUnite: 'FCFA / m³',
+    usages: ['Travaux routiers/BTP', 'Autre'],
+    fiche: {
+      traitement: 'Lagunage — usage travaux publics uniquement',
+      dbo5: '< 30 mg/L',
+      mes: '< 35 mg/L',
+      coliformes: 'Conforme — < 1 000 UFC/100 mL',
+      normes: 'Usage BTP — arrosage et compactage',
+      conditionnement: 'Pompage citerne sur site',
+    },
+  },
+]
+
+/** Commission plateforme prélevée sur chaque commande de sous-produits. */
+export const commissionCommande = 500
+
+export const statutsCommande = ['SOUMISE', 'ACCEPTÉE', 'PRÊTE', 'ENLEVÉE', 'PAYÉE']
+
+export const modesRetrait = ['Enlèvement', 'Livraison']
+
+export const commandesAcheteur = [
+  {
+    id: 'CMD-2026-0148',
+    produit: 'Amendement organique — boues séchées hygiénisées',
+    station: 'Tivaouane Peulh',
+    quantite: 5,
+    unite: 'tonnes',
+    montant: 225000,
+    date: '12 août 2026',
+    retrait: 'Enlèvement',
+    paiement: 'Wave',
+    statut: 'ENLEVÉE',
+    usage: 'Agriculture',
+    traitement: 'Séchage sur lits plantés puis hygiénisation (60 jours)',
+  },
+  {
+    id: 'CMD-2026-0131',
+    produit: 'Eau traitée non potable',
+    station: 'Tivaouane Peulh',
+    quantite: 120,
+    unite: 'm³',
+    montant: 96000,
+    date: '28 juillet 2026',
+    retrait: 'Livraison',
+    paiement: 'Virement',
+    statut: 'PAYÉE',
+    usage: 'Travaux routiers/BTP',
+    traitement: 'Lagunage + filtration — usage non potable',
+  },
+  {
+    id: 'CMD-2026-0119',
+    produit: 'Amendement organique — compost affiné',
+    station: 'Cambérène',
+    quantite: 3,
+    unite: 'tonnes',
+    montant: 156000,
+    date: '09 juillet 2026',
+    retrait: 'Enlèvement',
+    paiement: 'Orange Money',
+    statut: 'PAYÉE',
+    usage: 'Agriculture',
+    traitement: 'Compostage en andains, criblage 10 mm',
   },
 ]

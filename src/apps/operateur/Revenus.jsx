@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts'
-import { TrendingUp, Star, Truck, Wallet, ArrowUpRight, Fingerprint } from 'lucide-react'
-import { Card, ScreenBody, ScreenHeader, SectionTitle, Badge } from '../../components/ui'
+import { TrendingUp, Star, Truck, Wallet, ArrowUpRight, Fingerprint, Banknote, Plus } from 'lucide-react'
+import { Button, Card, ScreenBody, ScreenHeader, SectionTitle, Badge } from '../../components/ui'
 import { revenusSemaine, statsOperateur, historiqueVidanges, fcfa } from '../../data/mockData'
 
 function InfoBulle({ active, payload, label }) {
@@ -12,7 +12,7 @@ function InfoBulle({ active, payload, label }) {
   )
 }
 
-export default function Revenus() {
+export default function Revenus({ financier }) {
   const max = Math.max(...revenusSemaine.map((r) => r.gains))
 
   return (
@@ -22,7 +22,7 @@ export default function Revenus() {
         <Card className="border-navy/10 bg-gradient-to-br from-navy to-navy-600 !p-5 text-white">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-[11.5px] font-medium text-white/70">Gains de la semaine</p>
+              <p className="text-[11.5px] font-medium text-white/70">Net perçu cette semaine</p>
               <p className="mt-1.5 text-[30px] font-extrabold leading-none">
                 {fcfa(statsOperateur.gainsSemaine)}
               </p>
@@ -37,11 +37,42 @@ export default function Revenus() {
           </div>
         </Card>
 
+        {/* Compte prépayé — sert aux missions réglées en espèces */}
+        <Card className={`mt-3 ${financier.soldeInsuffisant ? 'border-danger/30' : ''}`}>
+          <div className="flex items-center gap-3">
+            <span
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+                financier.soldeInsuffisant ? 'bg-danger/10 text-danger' : 'bg-navy-50 text-navy'
+              }`}
+            >
+              <Banknote size={19} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11.5px] font-medium text-slateink">Compte prépayé</p>
+              <p className="text-[20px] font-extrabold leading-none text-navy">
+                {fcfa(financier.soldePrepaye)}
+              </p>
+            </div>
+            <Button size="sm" icon={Plus} onClick={financier.recharger}>
+              Recharger
+            </Button>
+          </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-slateink">
+            Utilisé pour régler la redevance de dépotage et la commission lorsque le ménage paie en
+            espèces.
+          </p>
+          {financier.soldeInsuffisant && (
+            <p className="mt-2 text-[11.5px] font-semibold text-danger">
+              Solde insuffisant — rechargez pour accepter de nouvelles missions.
+            </p>
+          )}
+        </Card>
+
         <Card className="mt-3">
           <SectionTitle
             action={<span className="text-[11.5px] font-semibold text-teal">7 derniers jours</span>}
           >
-            Gains quotidiens
+            Net perçu par jour
           </SectionTitle>
           <div className="h-[150px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -94,7 +125,8 @@ export default function Revenus() {
                   <p className="text-[11px] text-slateink">{v.date}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[13px] font-extrabold text-navy">{fcfa(v.montant)}</p>
+                  <p className="text-[13px] font-extrabold text-navy">{fcfa(v.net)}</p>
+                  <p className="text-[10px] text-slateink">net perçu</p>
                   <Badge tone="success" size="sm">
                     Versé
                   </Badge>

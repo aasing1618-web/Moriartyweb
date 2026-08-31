@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Phone, MessageSquare, Truck, MapPin, Timer, CreditCard, ShieldCheck } from 'lucide-react'
+import {
+  Phone,
+  MessageSquare,
+  Truck,
+  MapPin,
+  Timer,
+  CreditCard,
+  ShieldCheck,
+  RotateCcw,
+} from 'lucide-react'
 import {
   Avatar,
   Badge,
@@ -13,7 +22,7 @@ import {
   ScreenHeader,
   Stepper,
 } from '../../components/ui'
-import { etapesSuivi, etaSuivi, menage } from '../../data/mockData'
+import { etapesSuivi, etaSuivi, menage, recapitulatif, fcfa } from '../../data/mockData'
 
 /** Position simulée du camion pour chaque étape (en % de la carte). */
 const POSITIONS = [
@@ -26,6 +35,7 @@ const POSITIONS = [
 
 export default function Tracking({ go, operateurChoisi }) {
   const [etape, setEtape] = useState(0)
+  const [annulation, setAnnulation] = useState(false)
 
   // Progression automatique des étapes — pure animation de démonstration.
   useEffect(() => {
@@ -115,7 +125,7 @@ export default function Tracking({ go, operateurChoisi }) {
             {[
               { label: 'Volume', valeur: '8 m³' },
               { label: 'Station', valeur: 'Tivaouane P.' },
-              { label: 'Montant', valeur: '22 500' },
+              { label: 'Montant', valeur: '25 000' },
             ].map((info) => (
               <div
                 key={info.label}
@@ -135,12 +145,75 @@ export default function Tracking({ go, operateurChoisi }) {
             Procéder au paiement
           </Button>
         ) : (
-          <div className="flex items-center justify-center gap-2 rounded-2xl bg-mist py-3.5 text-[13px] font-semibold text-slateink">
-            <Timer size={16} strokeWidth={2.2} />
-            Paiement disponible après le dépotage certifié
-          </div>
+          <>
+            <div className="flex items-center justify-center gap-2 rounded-2xl bg-mist py-3.5 text-[13px] font-semibold text-slateink">
+              <Timer size={16} strokeWidth={2.2} />
+              Paiement disponible après le dépotage certifié
+            </div>
+            {etape < 2 && (
+              <button
+                onClick={() => setAnnulation(true)}
+                className="mt-2.5 w-full text-center text-[12px] font-semibold text-danger transition hover:underline"
+              >
+                Annuler la demande
+              </button>
+            )}
+          </>
         )}
       </ScreenFooter>
+
+      {/* Annulation avant intervention : séquestre intégralement remboursé */}
+      {annulation && (
+        <div className="absolute inset-0 z-50 flex items-end bg-navy/40 backdrop-blur-[2px]">
+          <div className="w-full animate-fade-up rounded-t-[28px] bg-white p-5 pb-8 shadow-[0_-16px_40px_-20px_rgba(22,50,74,0.5)]">
+            {annulation === 'fait' ? (
+              <>
+                <div className="flex flex-col items-center text-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-success text-white shadow-lift">
+                    <RotateCcw size={30} strokeWidth={2.4} />
+                  </span>
+                  <h3 className="mt-4 text-[18px] font-bold text-navy">Demande annulée</h3>
+                  <p className="mt-2 text-[13px] leading-relaxed text-slateink">
+                    Votre séquestre de{' '}
+                    <span className="font-semibold text-navy">{fcfa(recapitulatif.total)}</span> est
+                    intégralement remboursé. Aucune part n’a été versée.
+                  </p>
+                </div>
+                <Button size="lg" block className="mt-5" onClick={() => go('home')}>
+                  Retour à l’accueil
+                </Button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-[17px] font-bold text-navy">Annuler la demande ?</h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-slateink">
+                  L’intervention n’a pas commencé : votre paiement de{' '}
+                  <span className="font-semibold text-navy">{fcfa(recapitulatif.total)}</span>,
+                  bloqué en séquestre, vous sera intégralement remboursé.
+                </p>
+                <div className="mt-5 flex gap-2.5">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => setAnnulation(false)}
+                  >
+                    Retour
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => setAnnulation('fait')}
+                  >
+                    Confirmer
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
   )
 }

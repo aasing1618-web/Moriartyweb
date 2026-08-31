@@ -104,15 +104,19 @@ export default function Payment({ go, paiement, onChoisirPaiement }) {
         <Card>
           <div className="space-y-2 text-[13px]">
             <div className="flex justify-between">
-              <span className="text-slateink">{recapitulatif.service}</span>
+              <span className="text-slateink">
+                {recapitulatif.service} — {recapitulatif.operateur}
+              </span>
               <span className="font-semibold text-navy">{fcfa(recapitulatif.prestation)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slateink">Opérateur</span>
-              <span className="font-semibold text-navy">{recapitulatif.operateur}</span>
+              <span className="text-slateink">Redevance de dépotage</span>
+              <span className="font-semibold text-navy">
+                {fcfa(recapitulatif.redevanceDepotage)}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slateink">Frais de plateforme</span>
+              <span className="text-slateink">Commission plateforme</span>
               <span className="font-semibold text-navy">{fcfa(recapitulatif.fraisPlateforme)}</span>
             </div>
             <div className="mt-1 flex items-end justify-between border-t border-navy/[0.07] pt-3">
@@ -124,9 +128,16 @@ export default function Payment({ go, paiement, onChoisirPaiement }) {
           </div>
         </Card>
 
-        <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-slateink">
-          <Lock size={13} strokeWidth={2.2} />
-          Paiement sécurisé · reçu numérique généré automatiquement
+        <div className="mt-3 flex items-start gap-2.5 rounded-2xl bg-teal/[0.07] p-3.5">
+          <Lock size={16} className="mt-0.5 shrink-0 text-teal" strokeWidth={2.2} />
+          <p className="text-[11.5px] leading-relaxed text-slateink">
+            Vous ne payez qu’une seule fois.{' '}
+            <span className="font-semibold text-navy">
+              Votre argent reste bloqué en séquestre
+            </span>{' '}
+            et n’est réparti entre le vidangeur, la station et la plateforme qu’au scan du QR à la
+            station de traitement.
+          </p>
         </div>
       </ScreenBody>
 
@@ -141,6 +152,9 @@ export default function Payment({ go, paiement, onChoisirPaiement }) {
             `Payer ${fcfa(recapitulatif.total)}`
           )}
         </Button>
+        <p className="mt-2.5 text-center text-[10.5px] italic text-slateink">
+          « Paiement sécurisé opéré par un partenaire agréé. »
+        </p>
       </ScreenFooter>
     </>
   )

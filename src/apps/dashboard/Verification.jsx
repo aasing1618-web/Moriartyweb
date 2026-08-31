@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { Route, MessageSquareWarning, Check, X, Clock3, ShieldAlert, ShieldCheck } from 'lucide-react'
+import { Route, MessageSquareWarning, Check, X, Clock3, ShieldAlert, ShieldCheck, Lock } from 'lucide-react'
 import { Badge, Button, Card, SectionTitle } from '../../components/ui'
 import { alertesVerification } from '../../data/mockData'
 
 const TYPES = {
   Déviation: { tone: 'danger', icon: Route },
+  'Anomalie de dépotage': { tone: 'danger', icon: Lock },
   'Signalement anonyme': { tone: 'amber', icon: MessageSquareWarning },
   'Signalement citoyen': { tone: 'amber', icon: MessageSquareWarning },
 }
+
+const TYPES_CRITIQUES = ['Déviation', 'Anomalie de dépotage']
 
 const STATUTS = {
   'À vérifier': { tone: 'warning', icon: Clock3 },
@@ -74,7 +77,9 @@ export default function Verification() {
               >
                 <span
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
-                    a.type === 'Déviation' ? 'bg-danger/10 text-danger' : 'bg-amber/12 text-amber-600'
+                    TYPES_CRITIQUES.includes(a.type)
+                      ? 'bg-danger/10 text-danger'
+                      : 'bg-amber/12 text-amber-600'
                   }`}
                 >
                   <TypeIcon size={19} strokeWidth={2.2} />
@@ -91,12 +96,17 @@ export default function Verification() {
                       </span>
                     )}
                     <span className="text-[13.5px] font-bold text-navy">· {a.reference}</span>
-                    {a.type === 'Déviation' && (
+                    {TYPES_CRITIQUES.includes(a.type) && (
                       <span className="text-[12px] text-slateink">· {a.detail}</span>
                     )}
                   </div>
                   <p className="mt-1.5 text-[13px] text-slateink">"{a.description}"</p>
                   <p className="mt-1 text-[11.5px] text-slateink/80">{a.temps}</p>
+                  {a.fondsGeles && (
+                    <Badge tone="danger" icon={Lock} size="sm" className="mt-2">
+                      Fonds gelés — pas de preuve, pas de paiement
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2.5">

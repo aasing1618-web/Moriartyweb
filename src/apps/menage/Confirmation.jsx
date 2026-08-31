@@ -113,6 +113,29 @@ export default function Confirmation({ go }) {
           </div>
         </Card>
 
+        {/* Répartition du séquestre, déclenchée par le scan à la station */}
+        <p className="mb-2 mt-5 text-[12px] font-semibold uppercase tracking-wide text-slateink">
+          Répartition de votre paiement
+        </p>
+        <Card className="!py-2">
+          {[
+            ['Prestation — vidangeur', recapitulatif.prestation],
+            ['Redevance de dépotage — station', recapitulatif.redevanceDepotage],
+            ['Commission plateforme', recapitulatif.fraisPlateforme],
+          ].map(([label, montant]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between gap-3 border-b border-navy/[0.06] py-2.5 text-[12.5px] last:border-0"
+            >
+              <span className="text-slateink">{label}</span>
+              <span className="shrink-0 font-semibold text-navy">{fcfa(montant)}</span>
+            </div>
+          ))}
+        </Card>
+        <p className="mt-2 text-center text-[10.5px] leading-relaxed text-slateink">
+          Séquestre libéré au scan du QR à la station — pas de preuve, pas de paiement.
+        </p>
+
         <div className="mt-4 flex items-center justify-center gap-2">
           <Badge tone="teal">Données transmises à l’ONAS</Badge>
           <Badge tone="neutral" icon={Download}>
