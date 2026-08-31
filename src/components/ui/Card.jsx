@@ -5,6 +5,7 @@ export default function Card({
   active = false,
   padded = true,
   hover = false,
+  glass = false,
 }) {
   const interactive = Boolean(onClick)
   return (
@@ -12,15 +13,15 @@ export default function Card({
       onClick={onClick}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
-      className={`rounded-2xl bg-white shadow-card transition-all duration-200 ${
-        padded ? 'p-4' : ''
-      } ${
+      className={`rounded-2xl transition-all duration-300 ${
+        glass ? 'glass-card shadow-soft' : 'bg-white shadow-card'
+      } ${padded ? 'p-4 sm:p-5' : ''} ${
         active
-          ? 'ring-2 ring-teal border border-transparent'
-          : 'border border-navy/[0.06]'
+          ? 'ring-2 ring-teal shadow-glow-teal border-transparent'
+          : 'border border-navy/[0.08]'
       } ${
         interactive || hover
-          ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-soft active:scale-[0.99]'
+          ? 'cursor-pointer hover:-translate-y-1 hover:shadow-card-hover hover:border-teal/30 active:scale-[0.99]'
           : ''
       } ${className}`}
     >
@@ -31,9 +32,10 @@ export default function Card({
 
 export function SectionTitle({ children, action, className = '' }) {
   return (
-    <div className={`mb-3 flex items-end justify-between ${className}`}>
-      <h3 className="text-[15px] font-semibold text-navy">{children}</h3>
+    <div className={`mb-3 flex items-center justify-between ${className}`}>
+      <h3 className="text-[15px] sm:text-[16px] font-bold text-navy tracking-tight">{children}</h3>
       {action}
     </div>
   )
 }
+

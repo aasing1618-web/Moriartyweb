@@ -14,8 +14,8 @@ const BLOCS = [
 export default function MapCanvas({ children, className = '', tone = 'day' }) {
   const isNight = tone === 'night'
   const palette = isNight
-    ? { fond: '#12212E', bloc: '#1B2E3E', route: '#27404F', parc: '#183A33', eau: '#0F2C34' }
-    : { fond: '#E7ECE4', bloc: '#DCE3D8', route: '#FBFAF7', parc: '#CFE0C6', eau: '#C9E1E0' }
+    ? { fond: '#0E1A24', bloc: '#182836', route: '#233748', parc: '#13352B', eau: '#0A242B' }
+    : { fond: '#E8ECE6', bloc: '#DCE4D8', route: '#FFFFFF', parc: '#CAE2C2', eau: '#BFE0DF' }
 
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ background: palette.fond }}>
@@ -34,32 +34,34 @@ export default function MapCanvas({ children, className = '', tone = 'day' }) {
             y={y}
             width={w}
             height={h}
-            rx="7"
+            rx="8"
             fill={palette.bloc}
             opacity={0.95}
           />
         ))}
 
         {/* Espaces verts */}
-        <rect x="96" y="172" width="60" height="54" rx="10" fill={palette.parc} />
-        <circle cx="290" cy="120" r="26" fill={palette.parc} opacity="0.9" />
+        <rect x="96" y="172" width="60" height="54" rx="12" fill={palette.parc} />
+        <circle cx="290" cy="120" r="28" fill={palette.parc} opacity="0.9" />
 
         {/* Plan d'eau */}
-        <path d="M0 372 Q 70 350 140 372 T 290 376 L 400 360 L 400 400 L 0 400 Z" fill={palette.eau} />
+        <path d="M0 370 Q 70 348 140 370 T 290 374 L 400 358 L 400 400 L 0 400 Z" fill={palette.eau} />
 
-        {/* Réseau viaire */}
+        {/* Réseau viaire principal */}
         <g stroke={palette.route} strokeLinecap="round" fill="none">
-          <path d="M0 78 H400" strokeWidth="11" />
-          <path d="M0 160 H400" strokeWidth="8" />
-          <path d="M0 238 H400" strokeWidth="11" />
-          <path d="M0 318 H400" strokeWidth="8" />
-          <path d="M76 0 V400" strokeWidth="11" />
-          <path d="M160 0 V400" strokeWidth="8" />
-          <path d="M228 0 V400" strokeWidth="8" />
-          <path d="M310 0 V400" strokeWidth="11" />
-          <path d="M0 20 L 120 130 L 250 200 L 400 300" strokeWidth="6" opacity="0.75" />
+          <path d="M0 78 H400" strokeWidth="12" />
+          <path d="M0 160 H400" strokeWidth="9" />
+          <path d="M0 238 H400" strokeWidth="12" />
+          <path d="M0 318 H400" strokeWidth="9" />
+          <path d="M76 0 V400" strokeWidth="12" />
+          <path d="M160 0 V400" strokeWidth="9" />
+          <path d="M228 0 V400" strokeWidth="9" />
+          <path d="M310 0 V400" strokeWidth="12" />
+          <path d="M0 20 L 120 130 L 250 200 L 400 300" strokeWidth="7" opacity="0.8" />
         </g>
-        <g stroke={isNight ? '#3A5A6B' : '#E9E5DC'} strokeWidth="1.4" fill="none" opacity="0.9">
+        
+        {/* Lignes médianes / secondaires */}
+        <g stroke={isNight ? '#3A5769' : '#E5E1D7'} strokeWidth="1.5" fill="none" opacity="0.85">
           <path d="M0 118 H400" />
           <path d="M0 278 H400" />
           <path d="M118 0 V400" />
@@ -68,7 +70,7 @@ export default function MapCanvas({ children, className = '', tone = 'day' }) {
       </svg>
 
       {!isNight && (
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-white/35" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/40" />
       )}
       {children}
     </div>
@@ -83,7 +85,7 @@ const MARKER_COLORS = {
   amber: '#E1863B',
   success: '#1E9E63',
   danger: '#D64545',
-  blue: '#1D4ED8',
+  blue: '#2563EB',
 }
 
 export function MapMarker({
@@ -99,25 +101,25 @@ export function MapMarker({
   const hex = MARKER_COLORS[color] || color
   return (
     <div
-      className={`absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center ${className}`}
+      className={`absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center group transition-transform duration-300 hover:scale-110 ${className}`}
       style={{ left: `${x}%`, top: `${y}%` }}
     >
       <div className="relative flex items-center justify-center">
         {pulse && (
           <span
-            className="absolute h-full w-full animate-ping-soft rounded-full"
-            style={{ background: hex, width: size, height: size }}
+            className="absolute animate-ping-soft rounded-full opacity-75"
+            style={{ background: hex, width: size * 1.5, height: size * 1.5 }}
           />
         )}
         <div
-          className="relative flex items-center justify-center rounded-full border-[3px] border-white text-white shadow-lift"
+          className="relative flex items-center justify-center rounded-full border-[3px] border-white text-white shadow-lift ring-2 ring-black/10"
           style={{ background: hex, width: size, height: size }}
         >
           {Icon && <Icon size={size * 0.45} strokeWidth={2.4} />}
         </div>
       </div>
       {label && (
-        <span className="mt-1.5 whitespace-nowrap rounded-lg bg-white/95 px-2 py-1 text-[10px] font-semibold text-navy shadow-card">
+        <span className="mt-1.5 whitespace-nowrap rounded-lg bg-white/95 backdrop-blur-md px-2.5 py-1 text-[10.5px] font-bold text-navy shadow-card border border-navy/10">
           {label}
         </span>
       )}
@@ -125,21 +127,21 @@ export function MapMarker({
   )
 }
 
-export function MapDot({ x, y, color = '#1E9E63', pulse = false, size = 11, title }) {
+export function MapDot({ x, y, color = '#1E9E63', pulse = false, size = 12, title }) {
   return (
     <span
-      className="absolute -translate-x-1/2 -translate-y-1/2"
+      className="absolute -translate-x-1/2 -translate-y-1/2 group"
       style={{ left: `${x}%`, top: `${y}%` }}
       title={title}
     >
       {pulse && (
         <span
-          className="absolute inset-0 animate-ping-soft rounded-full"
+          className="absolute -inset-1 animate-ping-soft rounded-full"
           style={{ background: color }}
         />
       )}
       <span
-        className="relative block rounded-full border-2 border-white shadow"
+        className="relative block rounded-full border-2 border-white shadow-lift transition-transform duration-200 group-hover:scale-125"
         style={{ background: color, width: size, height: size }}
       />
     </span>
@@ -160,21 +162,22 @@ export function RouteLine({ from, to, color = '#0E7C7B', curve = -18 }) {
         d={`M ${from.x} ${from.y} Q ${mx} ${my} ${to.x} ${to.y}`}
         fill="none"
         stroke="white"
-        strokeWidth="2.6"
+        strokeWidth="3.2"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        opacity="0.85"
+        opacity="0.9"
       />
       <path
         d={`M ${from.x} ${from.y} Q ${mx} ${my} ${to.x} ${to.y}`}
         fill="none"
         stroke={color}
-        strokeWidth="2.6"
+        strokeWidth="2.8"
         strokeLinecap="round"
-        strokeDasharray="7 7"
+        strokeDasharray="8 8"
         vectorEffect="non-scaling-stroke"
         className="animate-dash"
       />
     </svg>
   )
 }
+
