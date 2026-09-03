@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { Search, BadgeCheck, Clock3, Star, Download } from 'lucide-react'
 import { Avatar, Badge, Card, ProgressBar, SectionTitle } from '../../components/ui'
 import { operateursFormalises } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
+import { formatNote } from '../../lib/notation.js'
 
 const FILTRES = ['Tous', 'Formel', 'En formalisation']
 
 export default function OperateursView() {
   const [filtre, setFiltre] = useState('Tous')
+  const { noteDe } = usePlateforme()
 
   const liste =
     filtre === 'Tous'
@@ -74,7 +77,16 @@ export default function OperateursView() {
           <table className="w-full min-w-[760px] border-collapse">
             <thead>
               <tr className="border-b border-navy/[0.08] text-left">
-                {['Opérateur', 'Commune', 'Statut', 'Note', 'Vidanges', 'Conformité'].map((h) => (
+                {[
+                  'Opérateur',
+                  'Commune',
+                  'Statut',
+                  'Note ménage (60 %)',
+                  'Note station (40 %)',
+                  'Note globale',
+                  'Vidanges',
+                  'Conformité',
+                ].map((h) => (
                   <th
                     key={h}
                     className="pb-3 text-[11px] font-bold uppercase tracking-wide text-slateink"
@@ -85,7 +97,9 @@ export default function OperateursView() {
               </tr>
             </thead>
             <tbody>
-              {liste.map((o) => (
+              {liste.map((o) => {
+                const note = noteDe(o.chauffeurId)
+                return (
                 <tr
                   key={o.id}
                   className="border-b border-navy/[0.05] transition hover:bg-cream/70 last:border-0"
@@ -112,9 +126,21 @@ export default function OperateursView() {
                     )}
                   </td>
                   <td className="py-3.5 pr-4">
-                    <span className="flex items-center gap-1.5 text-[13px] font-semibold text-navy">
+                    <span className="text-[13px] font-semibold text-navy">
+                      {formatNote(note.menage)}
+                    </span>
+                    <span className="ml-1 text-[11px] text-slateink">({note.nbMenage})</span>
+                  </td>
+                  <td className="py-3.5 pr-4">
+                    <span className="text-[13px] font-semibold text-navy">
+                      {formatNote(note.station)}
+                    </span>
+                    <span className="ml-1 text-[11px] text-slateink">({note.nbStation})</span>
+                  </td>
+                  <td className="py-3.5 pr-4">
+                    <span className="flex items-center gap-1.5 text-[13px] font-extrabold text-navy">
                       <Star size={14} className="fill-amber text-amber" />
-                      {String(o.note).replace('.', ',')}
+                      {formatNote(note.globale)}
                     </span>
                   </td>
                   <td className="py-3.5 pr-4 text-[13px] font-semibold text-navy">{o.vidanges}</td>
@@ -131,7 +157,8 @@ export default function OperateursView() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>

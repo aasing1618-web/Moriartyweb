@@ -21,6 +21,7 @@ import OperateurApp from './apps/operateur/OperateurApp.jsx'
 import DashboardApp from './apps/dashboard/DashboardApp.jsx'
 import DelegataireApp from './apps/delegataire/DelegataireApp.jsx'
 import AcheteurApp from './apps/acheteur/AcheteurApp.jsx'
+import { PlateformeProvider } from './lib/PlateformeContext.jsx'
 
 const EXPERIENCES = [
   {
@@ -263,23 +264,33 @@ function ScenePhone({ experience, onRetour, children }) {
   )
 }
 
-export default function App() {
-  const [vue, setVue] = useState('selecteur')
+function Routeur({ vue, setVue }) {
+  const retour = () => setVue('selecteur')
 
-  if (vue === 'dashboard') return <DashboardApp onRetour={() => setVue('selecteur')} />
-  if (vue === 'delegataire') return <DelegataireApp onRetour={() => setVue('selecteur')} />
-  if (vue === 'acheteur') return <AcheteurApp onRetour={() => setVue('selecteur')} />
+  if (vue === 'dashboard') return <DashboardApp onRetour={retour} />
+  if (vue === 'delegataire') return <DelegataireApp onRetour={retour} />
+  if (vue === 'acheteur') return <AcheteurApp onRetour={retour} />
 
   if (vue === 'menage' || vue === 'operateur') {
     const experience = EXPERIENCES.find((e) => e.id === vue)
     return (
-      <ScenePhone experience={experience} onRetour={() => setVue('selecteur')}>
+      <ScenePhone experience={experience} onRetour={retour}>
         {vue === 'menage' ? <MenageApp /> : <OperateurApp />}
       </ScenePhone>
     )
   }
 
   return <Selecteur onChoisir={setVue} />
+}
+
+export default function App() {
+  const [vue, setVue] = useState('selecteur')
+
+  return (
+    <PlateformeProvider>
+      <Routeur vue={vue} setVue={setVue} />
+    </PlateformeProvider>
+  )
 }
 
 

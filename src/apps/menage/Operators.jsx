@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { BadgeCheck, Clock, Navigation, Truck, ArrowRight } from 'lucide-react'
 import { Avatar, Badge, Button, Card, ScreenBody, ScreenFooter, ScreenHeader, Stars } from '../../components/ui'
 import { operateursDisponibles, fcfa } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
+import { formatNote } from '../../lib/notation.js'
 
 const TRIS = ['Recommandés', 'Prix le plus bas', 'Mieux notés', 'Plus proches']
 
 export default function Operators({ go, onChoisir, operateurChoisi }) {
   const [tri, setTri] = useState(TRIS[0])
+  const { noteDe } = usePlateforme()
   const choisiId = operateurChoisi?.id
 
   return (
@@ -39,6 +42,7 @@ export default function Operators({ go, onChoisir, operateurChoisi }) {
         <div className="space-y-3">
           {operateursDisponibles.map((op) => {
             const actif = op.id === choisiId
+            const note = noteDe(op.chauffeurId)
             return (
               <Card key={op.id} active={actif} onClick={() => onChoisir(op)}>
                 <div className="flex gap-3">
@@ -56,8 +60,11 @@ export default function Operators({ go, onChoisir, operateurChoisi }) {
                       </p>
                     </div>
 
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <Stars note={op.note} count={op.avis} size={12} />
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <Stars note={note.globale ?? 0} count={note.nbMenage + note.nbStation} size={12} />
+                      <span className="text-[10.5px] text-slateink">
+                        ménage {formatNote(note.menage)} · station {formatNote(note.station)}
+                      </span>
                     </div>
 
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">

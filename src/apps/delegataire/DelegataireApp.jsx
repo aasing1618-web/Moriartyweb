@@ -17,9 +17,11 @@ import {
   TrendingUp,
   BarChart3,
   Menu,
+  Star,
   X,
 } from 'lucide-react'
 import { Wordmark, Card, SectionTitle, Badge, Button } from '../../components/ui'
+import NotationDepotages from './NotationDepotages.jsx'
 
 const MENU = [
   {
@@ -49,6 +51,14 @@ const MENU = [
     icon: Coins,
     titre: 'Revenus de la station',
     sousTitre: 'Part délégataire (25%) collectée sur les dépotages tracés',
+  },
+  {
+    id: 'notation',
+    label: 'Notation des dépotages',
+    icon: Star,
+    titre: 'Notation des dépotages',
+    sousTitre:
+      'Qualité du service et conformité du dépotage — 40 % de la note finale du chauffeur',
   },
   {
     id: 'valorisation',
@@ -390,6 +400,9 @@ export default function DelegataireApp({ onRetour }) {
           )}
 
           {/* VUE: VOLUMES TRAITÉES */}
+          {/* VUE: NOTATION DES DÉPOTAGES */}
+          {vue === 'notation' && <NotationDepotages />}
+
           {vue === 'volumes' && (
             <Card className="!p-6 space-y-4">
               <SectionTitle icon={BarChart3}>Analyse des volumes de boues de vidange</SectionTitle>

@@ -1,7 +1,9 @@
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts'
 import { TrendingUp, Star, Truck, Wallet, ArrowUpRight, Fingerprint, Banknote, Plus } from 'lucide-react'
 import { Button, Card, ScreenBody, ScreenHeader, SectionTitle, Badge } from '../../components/ui'
-import { revenusSemaine, statsOperateur, historiqueVidanges, fcfa } from '../../data/mockData'
+import { revenusSemaine, statsOperateur, historiqueVidanges, operateur, fcfa } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
+import { formatNote } from '../../lib/notation.js'
 
 function InfoBulle({ active, payload, label }) {
   if (!active || !payload?.length) return null
@@ -14,6 +16,8 @@ function InfoBulle({ active, payload, label }) {
 
 export default function Revenus({ financier }) {
   const max = Math.max(...revenusSemaine.map((r) => r.gains))
+  const { noteDe } = usePlateforme()
+  const maNote = noteDe(operateur.chauffeurId)
 
   return (
     <>
@@ -97,7 +101,12 @@ export default function Revenus({ financier }) {
         <div className="mt-3 grid grid-cols-3 gap-2.5">
           {[
             { icon: Truck, label: 'Vidanges', valeur: statsOperateur.vidangesSemaine, ton: 'bg-navy-50 text-navy' },
-            { icon: Star, label: 'Note', valeur: '4,8', ton: 'bg-amber/12 text-amber-600' },
+            {
+              icon: Star,
+              label: 'Note',
+              valeur: formatNote(maNote.globale),
+              ton: 'bg-amber/12 text-amber-600',
+            },
             { icon: TrendingUp, label: 'Conformité', valeur: '100 %', ton: 'bg-success/10 text-success' },
           ].map((s) => (
             <Card key={s.label} className="!p-3">

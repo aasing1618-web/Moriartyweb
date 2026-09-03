@@ -16,6 +16,8 @@ import {
 import { Avatar, Badge, Card, MapCanvas, MapMarker, ScreenBody } from '../../components/ui'
 import { demandesProximite, operateur, statsOperateur, repartition, fcfa } from '../../data/mockData'
 import { volumeDemande } from './OperateurApp.jsx'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
+import { formatNote } from '../../lib/notation.js'
 
 const TON_URGENCE = {
   Urgent: 'danger',
@@ -26,6 +28,8 @@ const TON_URGENCE = {
 export default function Requests({ go, onChoisirDemande, financier }) {
   const [enLigne, setEnLigne] = useState(true)
   const { soldePrepaye, recharger } = financier
+  const { noteDe } = usePlateforme()
+  const maNote = noteDe(operateur.chauffeurId)
 
   /** Une mission en espèces exige de pouvoir couvrir redevance + commission. */
   const bloquee = (d) => {
@@ -79,7 +83,7 @@ export default function Requests({ go, onChoisirDemande, financier }) {
           {[
             { label: 'Aujourd’hui', valeur: '3 vidanges' },
             { label: 'Net du jour', valeur: '58 500' },
-            { label: 'Note', valeur: `${operateur.note}`.replace('.', ',') + ' ★' },
+            { label: 'Note', valeur: `${formatNote(maNote.globale)} ★` },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl bg-white/10 px-3 py-2.5">
               <p className="text-[10px] font-medium text-white/60">{s.label}</p>

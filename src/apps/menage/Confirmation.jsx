@@ -2,10 +2,25 @@ import { useState } from 'react'
 import { Check, ShieldCheck, Star, Download, Home as HomeIcon, X, Fingerprint } from 'lucide-react'
 import { Badge, Button, Card, QrCode, ScreenBody, ScreenFooter } from '../../components/ui'
 import { recapitulatif, menage, fcfa } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
+import { formatNote, PONDERATION } from '../../lib/notation.js'
 
 function ModaleNote({ onClose }) {
+  const { noterParMenage, noteDe } = usePlateforme()
   const [note, setNote] = useState(5)
   const [envoye, setEnvoye] = useState(false)
+
+  const envoyer = () => {
+    noterParMenage({
+      chauffeurId: recapitulatif.chauffeurId,
+      note,
+      auteur: menage.nomComplet,
+      quartier: menage.quartier,
+    })
+    setEnvoye(true)
+  }
+
+  const nouvelleNote = noteDe(recapitulatif.chauffeurId)
 
   return (
     <div className="absolute inset-0 z-50 flex items-end bg-navy/40 backdrop-blur-[2px]">
@@ -23,10 +38,22 @@ function ModaleNote({ onClose }) {
         </div>
 
         {envoye ? (
-          <p className="pb-2 text-[13px] leading-relaxed text-slateink">
-            Votre note aide les autres ménages du quartier à choisir un opérateur fiable, et compte
-            dans le score de conformité de {recapitulatif.operateur}.
-          </p>
+          <>
+            <p className="text-[13px] leading-relaxed text-slateink">
+              Votre note aide les autres ménages du quartier à choisir un opérateur fiable. Elle
+              pèse {Math.round(PONDERATION.menage * 100)} % de la note finale de{' '}
+              {recapitulatif.operateur} ; les {Math.round((1 - PONDERATION.menage) * 100)} %
+              restants viennent de la station de traitement.
+            </p>
+            <div className="mt-4 flex items-center justify-between rounded-2xl bg-mist p-3.5">
+              <span className="text-[12.5px] font-semibold text-navy">
+                Nouvelle note de {recapitulatif.operateur}
+              </span>
+              <span className="text-[18px] font-extrabold text-teal">
+                {formatNote(nouvelleNote.globale)} / 5
+              </span>
+            </div>
+          </>
         ) : (
           <>
             <p className="text-[13px] text-slateink">
@@ -42,7 +69,7 @@ function ModaleNote({ onClose }) {
                 </button>
               ))}
             </div>
-            <Button size="lg" block onClick={() => setEnvoye(true)}>
+            <Button size="lg" block onClick={envoyer}>
               Envoyer ma note
             </Button>
           </>

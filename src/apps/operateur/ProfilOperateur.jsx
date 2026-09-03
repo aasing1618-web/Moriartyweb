@@ -1,6 +1,8 @@
 import { Truck, MapPin, Phone, Star, FileText, Bell, LogOut, ChevronRight, Pencil } from 'lucide-react'
 import { Avatar, Badge, Card, ScreenBody, ScreenHeader, SectionTitle } from '../../components/ui'
 import { operateur } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
+import { formatNote, PONDERATION } from '../../lib/notation.js'
 
 function Ligne({ icon: Icon, label, valeur }) {
   return (
@@ -17,6 +19,9 @@ function Ligne({ icon: Icon, label, valeur }) {
 }
 
 export default function ProfilOperateur() {
+  const { noteDe } = usePlateforme()
+  const note = noteDe(operateur.chauffeurId)
+
   return (
     <>
       <ScreenHeader title="Mon profil" />
@@ -32,7 +37,7 @@ export default function ProfilOperateur() {
                   {operateur.statut}
                 </Badge>
                 <Badge tone="white" size="sm">
-                  ★ {String(operateur.note).replace('.', ',')} ({operateur.avis})
+                  ★ {formatNote(note.globale)} ({note.nbMenage + note.nbStation} avis)
                 </Badge>
               </div>
             </div>
@@ -50,12 +55,36 @@ export default function ProfilOperateur() {
             </p>
           </Card>
           <Card className="!p-4">
-            <p className="text-[11px] font-medium text-slateink">Note moyenne</p>
+            <p className="text-[11px] font-medium text-slateink">Note globale</p>
             <p className="mt-1 flex items-center gap-1.5 text-[22px] font-extrabold leading-none text-navy">
-              4,8 <Star size={16} className="fill-amber text-amber" />
+              {formatNote(note.globale)} <Star size={16} className="fill-amber text-amber" />
             </p>
           </Card>
         </div>
+
+        <SectionTitle>Détail de ma note</SectionTitle>
+        <Card className="mb-4 !py-2">
+          {[
+            ['Note des ménages', note.menage, note.nbMenage, PONDERATION.menage],
+            ['Qualité de service (station)', note.service, note.nbStation, PONDERATION.service],
+            ['Conformité du dépotage', note.conformite, note.nbStation, PONDERATION.conformite],
+          ].map(([label, valeur, nombre, poids]) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 border-b border-navy/[0.06] py-2.5 last:border-0"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-[12.5px] font-semibold text-navy">{label}</span>
+                <span className="block text-[10.5px] text-slateink">
+                  {nombre} évaluation{nombre > 1 ? 's' : ''} · pèse {Math.round(poids * 100)} %
+                </span>
+              </span>
+              <span className="shrink-0 text-[14px] font-extrabold text-navy">
+                {formatNote(valeur)}
+              </span>
+            </div>
+          ))}
+        </Card>
 
         <SectionTitle>Informations professionnelles</SectionTitle>
         <Card className="!py-2">
