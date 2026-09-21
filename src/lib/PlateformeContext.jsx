@@ -8,16 +8,15 @@ import {
   evaluationsMenage as evaluationsMenageSeed,
   evaluationsStation as evaluationsStationSeed,
 } from '../data/flotteEtNotation.js'
+import {
+  grilleTarifaireTerrainDefaut,
+  calculerPrixEstimatifTerrain,
+  capteursFosses as capteursSeed,
+  demandesProximite as demandesSeed,
+  STATUTS_OFFICIELS,
+} from '../data/mockData.js'
 import { noteChauffeur, tauxConformite } from './notation.js'
 
-/**
- * État partagé de la plateforme pendant une session de démonstration.
- *
- * Les données de src/data/ servent de graine ; ce qui est saisi dans un espace
- * (une note station côté délégataire, par exemple) est immédiatement visible
- * dans les autres (fiche vidangeur, registre régulateur). Rien n'est persisté :
- * un rechargement de page repart de la graine.
- */
 const PlateformeContext = createContext(null)
 
 const idUnique = (prefixe) => `${prefixe}-${Math.random().toString(36).slice(2, 9)}`
@@ -30,6 +29,140 @@ export function PlateformeProvider({ children }) {
   const [interventions] = useState(interventionsSeed)
   const [evaluationsMenage, setEvaluationsMenage] = useState(evaluationsMenageSeed)
   const [evaluationsStation, setEvaluationsStation] = useState(evaluationsStationSeed)
+
+  // Nouveaux états réactifs
+  const [grilleTarifaire, setGrilleTarifaire] = useState(grilleTarifaireTerrainDefaut)
+  const [capteurs, setCapteurs] = useState(capteursSeed)
+  const [commandes, setCommandes] = useState(() =>
+    demandesSeed.map((d) => ({
+      ...d,
+      statutCode: d.statutCode || 4, // PAIEMENT_VALIDE par défaut pour la démo
+      statutId: d.statutId || 'PAIEMENT_VALIDE',
+      statutPaiement: d.statutPaiement || 'VALIDE',
+      codeMarchand: d.codeMarchand || 'WAVE-NDIAYE-883',
+      prixEstimatif: d.prix,
+      prixConfirme: d.prix,
+      prioritaire: d.urgence === 'Urgent' || d.statutAlert === 'critique',
+    }))
+  )
+
+  /* -------------------------------------------------------------- */
+  /*  Gestion Tarification & Capteurs                               */
+  /* -------------------------------------------------------------- */
+
+  const calculerTarif = useCallback(
+    (params) => calculerPrixEstimatifTerrain(params, grilleTarifaire),
+    [grilleTarifaire]
+  )
+
+  const modifierGrilleTarifaire = useCallback((nouvellesValeurs) => {
+    setGrilleTarifaire((prev) => ({ ...prev, ...nouvellesValeurs }))
+  }, [])
+
+  const simulerBasculeCapteur = useCallback((capteurId) => {
+    setCapteurs((liste) =>
+      liste.map((s) => {
+        if (s.id !== capteurId) return s
+        const nouveauNiveau = s.niveauActuel >= 85 ? 45 : 88
+        const estCritique = nouveauNiveau >= 85
+        return {
+          ...s,
+          niveauActuel: nouveauNiveau,
+          statutAlert: estCritique ? 'critique' : 'normal',
+          statutLabel: estCritique ? 'Critique' : 'Normal',
+          couleur: estCritique ? '#D64545' : '#1E9E63',
+          derniereMaj: 'À l’instant',
+        }
+      })
+    )
+  }, [])
+
+  /* -------------------------------------------------------------- */
+  /*  Gestion Commandes & Workflow                                  */
+  /* -------------------------------------------------------------- */
+
+  const changerStatutCommande = useCallback((commandeId, nouveauStatutId) => {
+    const statutObj = STATUTS_OFFICIELS.find((s) => s.id === nouveauStatutId)
+    if (!statutObj) return
+
+    setCommandes((liste) =>
+      liste.map((c) =>
+        c.id === commandeId || c.id === 'dem-1'
+          ? {
+              ...c,
+              statutId: statutObj.id,
+              statutCode: statutObj.code,
+              horodateurStatut: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            }
+          : c
+      )
+    )
+  }, [])
+
+  const validerPaiementCommande = useCallback(({ commandeId, modePaiement, codeMarchand }) => {
+    setCommandes((liste) =>
+      liste.map((c) =>
+        c.id === commandeId || c.id === 'dem-1'
+          ? {
+              ...c,
+              modePaiement: modePaiement || c.modePaiement,
+              codeMarchand: codeMarchand || c.codeMarchand || 'WAVE-NDIAYE-883',
+              statutPaiement: 'VALIDE',
+              statutId: 'PAIEMENT_VALIDE',
+              statutCode: 4,
+              datePaiementValide: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            }
+          : c
+      )
+    )
+  }, [])
+
+  const confirmerPrixCommande = useCallback((commandeId, prixConfirme) => {
+    setCommandes((liste) =>
+      liste.map((c) =>
+        c.id === commandeId || c.id === 'dem-1'
+          ? {
+              ...c,
+              prixConfirme,
+              prix: prixConfirme,
+              statutId: c.statutCode < 2 ? 'TARIF_CONFIRME' : c.statutId,
+              statutCode: c.statutCode < 2 ? 2 : c.statutCode,
+            }
+          : c
+      )
+    )
+  }, [])
+
+  const ajouterNouvelleDemande = useCallback((nouvelleDemande) => {
+    const id = idUnique('dem')
+    const commandeComplete = {
+      id,
+      statutCode: 1, // DEMANDE_CREEE
+      statutId: 'DEMANDE_CREEE',
+      statutPaiement: 'EN_ATTENTE',
+      modePaiement: nouvelleDemande.modePaiement || 'Wave',
+      codeMarchand: 'WAVE-NDIAYE-883',
+      prixEstimatif: nouvelleDemande.prixEstimatif || 22000,
+      prixConfirme: nouvelleDemande.prixEstimatif || 22000,
+      prix: nouvelleDemande.prixEstimatif || 22000,
+      prioritaire: nouvelleDemande.prioritaire || false,
+      client: nouvelleDemande.client || 'Aminata Diop',
+      initiales: 'AD',
+      quartier: nouvelleDemande.quartier || 'Parcelles Assainies U24',
+      adresse: nouvelleDemande.adresse || 'Parcelles Assainies U24, Villa 1187',
+      distance: nouvelleDemande.distance || '2,4 km',
+      trajet: '12 min',
+      volume: nouvelleDemande.volume || '~8 m³',
+      urgence: nouvelleDemande.urgence || 'Standard',
+      telephone: '+221 77 123 45 67',
+      typeFosse: nouvelleDemande.typeFosse || 'Fosse septique maçonnée — 3 m³',
+      acces: nouvelleDemande.acces || 'Rue carrossable — accès direct',
+      note: 4.9,
+      ...nouvelleDemande,
+    }
+    setCommandes((prev) => [commandeComplete, ...prev])
+    return id
+  }, [])
 
   /* -------------------------------------------------------------- */
   /*  Notation                                                      */
@@ -163,6 +296,18 @@ export function PlateformeProvider({ children }) {
       ajouterChauffeur,
       retirerChauffeur,
       affecter,
+
+      // Nouvelles valeurs réactives
+      grilleTarifaire,
+      capteurs,
+      commandes,
+      calculerTarif,
+      modifierGrilleTarifaire,
+      simulerBasculeCapteur,
+      changerStatutCommande,
+      validerPaiementCommande,
+      confirmerPrixCommande,
+      ajouterNouvelleDemande,
     }),
     [
       entreprises,
@@ -182,6 +327,16 @@ export function PlateformeProvider({ children }) {
       ajouterChauffeur,
       retirerChauffeur,
       affecter,
+      grilleTarifaire,
+      capteurs,
+      commandes,
+      calculerTarif,
+      modifierGrilleTarifaire,
+      simulerBasculeCapteur,
+      changerStatutCommande,
+      validerPaiementCommande,
+      confirmerPrixCommande,
+      ajouterNouvelleDemande,
     ]
   )
 

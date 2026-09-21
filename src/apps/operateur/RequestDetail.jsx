@@ -1,4 +1,4 @@
-import { MapPin, Phone, Droplets, Navigation, DoorOpen, Check, Lock, Banknote, Plus } from 'lucide-react'
+import { MapPin, Phone, Droplets, Navigation, DoorOpen, Check, Lock, Banknote, Plus, Smartphone, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react'
 import {
   Avatar,
   Badge,
@@ -13,6 +13,7 @@ import {
   RepartitionCard,
 } from '../../components/ui'
 import { fcfa } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
 
 function Info({ icon: Icon, label, valeur }) {
   return (
@@ -30,6 +31,15 @@ function Info({ icon: Icon, label, valeur }) {
 
 export default function RequestDetail({ go, demande, financier }) {
   const { part, estEspece, coutPrepaye, soldeInsuffisant: bloquee } = financier
+  const { changerStatutCommande, confirmerPrixCommande } = usePlateforme()
+  const estPaiementValide = demande.statutCode >= 4
+  const modePaiement = demande.modePaiement || 'Wave'
+
+  const accepterEtPartir = () => {
+    confirmerPrixCommande(demande.id, demande.prix)
+    changerStatutCommande(demande.id, 'CAMION_ENVOYE')
+    go('navigation')
+  }
 
   return (
     <>
@@ -37,27 +47,48 @@ export default function RequestDetail({ go, demande, financier }) {
         title="Détail de la demande"
         subtitle={demande.quartier}
         onBack={() => go('requests')}
-        right={<Badge tone={demande.urgence === 'Urgent' ? 'danger' : 'teal'}>{demande.urgence}</Badge>}
+        right={
+          <Badge tone={demande.urgence === 'Urgent' ? 'danger' : 'teal'}>
+            {demande.prioritaire ? '🔴 PRIORITAIRE' : demande.urgence}
+          </Badge>
+        }
       />
 
       <ScreenBody padded={false}>
         <div className="px-5">
-          <MapCanvas className="h-[160px] rounded-3xl shadow-card">
+          <MapCanvas className="h-[150px] rounded-3xl shadow-card">
             <MapMarker x={58} y={46} color="amber" icon={MapPin} size={38} pulse label={demande.quartier} />
           </MapCanvas>
         </div>
 
         <div className="px-5 pb-6 pt-4">
+          {/* Card statut autorisation départ camion */}
+          <div className={`mb-3 flex items-center justify-between rounded-2xl border p-3.5 shadow-2xs ${
+            estPaiementValide ? 'border-success/30 bg-success/10 text-success' : 'border-amber/30 bg-amber/10 text-amber-800'
+          }`}>
+            <div className="flex items-center gap-2.5">
+              {estPaiementValide ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+              <div>
+                <p className="text-[12.5px] font-extrabold">
+                  {estPaiementValide ? 'Paiement Confirmé — Départ Autorisé' : 'Paiement en attente par le ménage'}
+                </p>
+                <p className="text-[11px] text-slateink">
+                  {estPaiementValide ? 'Le camion peut partir vers le client' : 'Le camion ne doit pas se déplacer avant validation'}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <Card>
             <div className="flex items-center gap-3">
-              <Avatar initiales={demande.initiales} color="navy" size="lg" />
+              <Avatar initiales={demande.initiales || 'AD'} color="navy" size="lg" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-bold leading-tight text-navy">
                   {demande.client}
                 </p>
                 <p className="truncate text-[11.5px] text-slateink">{demande.telephone}</p>
                 <div className="mt-1.5">
-                  <Stars note={demande.note} size={12} />
+                  <Stars note={demande.note || 4.8} size={12} />
                 </div>
               </div>
               <button className="flex h-10 w-10 items-center justify-center rounded-2xl bg-teal text-white transition hover:bg-teal-600">
@@ -74,13 +105,13 @@ export default function RequestDetail({ go, demande, financier }) {
             <Info icon={DoorOpen} label="Accès" valeur={demande.acces} />
             <div className="border-t border-navy/[0.06]" />
             <Info
-              icon={Navigation}
-              label="Distance"
-              valeur={`${demande.distance} — ${demande.trajet} de trajet`}
+              icon={Smartphone}
+              label="Mode de paiement & Code Marchand"
+              valeur={`${modePaiement} · Code : ${demande.codeMarchand || 'WAVE-NDIAYE-883'}`}
             />
           </Card>
 
-          {/* Ce que perçoit réellement le vidangeur */}
+          {/* Répartition financière */}
           <RepartitionCard
             className="mt-3"
             montantPaye={part.montantPaye}
@@ -110,11 +141,11 @@ export default function RequestDetail({ go, demande, financier }) {
                 </>
               ) : (
                 <>
-                  Le ménage a payé par {demande.modePaiement} :{' '}
+                  Paiement via {modePaiement} :{' '}
                   <span className="font-semibold text-navy">
-                    {fcfa(part.montantPaye)} sont bloqués en séquestre
+                    Code Marchand WAVE-NDIAYE-883 validé.
                   </span>{' '}
-                  et répartis automatiquement au scan du QR à la station.
+                  Les fonds sont bloqués en séquestre et libérés après dépotage.
                 </>
               )}
             </p>
@@ -128,20 +159,17 @@ export default function RequestDetail({ go, demande, financier }) {
             <p className="text-[12.5px] font-bold text-navy">
               Solde insuffisant — rechargez pour accepter de nouvelles missions.
             </p>
-            <p className="mt-1 text-[11px] text-slateink">
-              Solde : {fcfa(financier.soldePrepaye)} · requis : {fcfa(coutPrepaye)}
-            </p>
             <Button size="md" block className="mt-3" icon={Plus} onClick={financier.recharger}>
               Recharger le compte prépayé
             </Button>
           </div>
         ) : (
           <div className="flex gap-2.5">
-            <Button variant="outline" size="lg" className="w-[38%]" onClick={() => go('requests')}>
+            <Button variant="outline" size="lg" className="w-[35%]" onClick={() => go('requests')}>
               Refuser
             </Button>
-            <Button size="lg" className="flex-1" icon={Check} onClick={() => go('navigation')}>
-              Accepter la demande
+            <Button size="lg" className="flex-1" icon={Check} onClick={accepterEtPartir}>
+              Accepter & Démarrer (Camion Envoyé)
             </Button>
           </div>
         )}
@@ -149,3 +177,4 @@ export default function RequestDetail({ go, demande, financier }) {
     </>
   )
 }
+

@@ -7,9 +7,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { Truck, ShieldCheck, Users, Home, AlertTriangle, ArrowUpRight } from 'lucide-react'
-import { Badge, Card, ProgressBar, SectionTitle, StatCard } from '../../components/ui'
-import { kpis, vidangesMensuelles, repartitionCommunes, stations } from '../../data/mockData'
+import { Truck, ShieldCheck, Users, Home, AlertTriangle, ArrowUpRight, Activity, Zap, CheckCircle2, CloudRain, Smartphone, CreditCard } from 'lucide-react'
+import { Badge, Button, Card, ProgressBar, SectionTitle, StatCard } from '../../components/ui'
+import { kpis, vidangesMensuelles, repartitionCommunes, stations, fcfa } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
 
 const ICONES = { truck: Truck, shield: ShieldCheck, users: Users, home: Home }
 
@@ -28,10 +29,16 @@ function InfoBulle({ active, payload, label }) {
 }
 
 export default function Overview() {
+  const { capteurs, simulerBasculeCapteur, commandes } = usePlateforme()
   const saturees = stations.filter((s) => s.remplissage >= 88)
+
+  const alertesCritiques = capteurs.filter((c) => c.statutAlert === 'critique')
+  const paiementsConfirmesCount = commandes.filter((c) => c.statutCode >= 4).length
+  const interventionsEnCoursCount = commandes.filter((c) => c.statutCode === 5 || c.statutCode === 6).length
 
   return (
     <div className="space-y-6">
+      {/* 4 KPIS d'origine + KPIS réactifs complémentaires */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
           <StatCard
@@ -44,6 +51,93 @@ export default function Overview() {
           />
         ))}
       </div>
+
+      {/* KPI BANNER — SUIVI DES REQUÊTES ET DE LA PRÉVENTION */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+        <div className="border-r border-navy/10 pr-3">
+          <p className="text-[11px] font-bold text-slateink uppercase">Commandes Tracées</p>
+          <p className="text-[20px] font-black text-navy mt-0.5">{commandes.length} actives</p>
+        </div>
+        <div className="border-r border-navy/10 pr-3 pl-2">
+          <p className="text-[11px] font-bold text-slateink uppercase">Paiements Validés</p>
+          <p className="text-[20px] font-black text-teal mt-0.5">{paiementsConfirmesCount} confirmés</p>
+        </div>
+        <div className="border-r border-navy/10 pr-3 pl-2">
+          <p className="text-[11px] font-bold text-slateink uppercase">Alertes IoT Hivernage</p>
+          <p className="text-[20px] font-black text-danger mt-0.5">{alertesCritiques.length} critiques 🔴</p>
+        </div>
+        <div className="pl-2">
+          <p className="text-[11px] font-bold text-slateink uppercase">Interventions en Cours</p>
+          <p className="text-[20px] font-black text-amber-600 mt-0.5">{interventionsEnCoursCount} camions</p>
+        </div>
+      </div>
+
+      {/* SURVEILLANCE DES CAPTEURS & PRÉVENTION DES INONDATIONS */}
+      <Card className="!p-6 border-2 border-danger/20 bg-gradient-to-br from-white via-mist/50 to-danger/[0.03]">
+        <SectionTitle
+          action={
+            <Badge tone="danger" icon={CloudRain}>
+              Dispositif Prévention Hivernage
+            </Badge>
+          }
+        >
+          Surveillance des Regards & Fosses en Temps Réel (IoT Capteurs)
+        </SectionTitle>
+        <p className="text-[12.5px] text-slateink mb-4">
+          Détection préventive des niveaux d'eau et de boue pour anticiper les débordements avant saturation des fosses.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {capteurs.map((c) => {
+            const estCritique = c.statutAlert === 'critique'
+            const estSurveillance = c.statutAlert === 'surveillance'
+
+            return (
+              <div
+                key={c.id}
+                className={`rounded-2xl border p-4 shadow-card transition ${
+                  estCritique
+                    ? 'border-danger/50 bg-danger/[0.06]'
+                    : estSurveillance
+                    ? 'border-warning/50 bg-warning/[0.06]'
+                    : 'border-navy/10 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-3 w-3 rounded-full ${
+                      estCritique ? 'bg-danger animate-ping' : estSurveillance ? 'bg-warning' : 'bg-success'
+                    }`} />
+                    <p className="text-[13px] font-bold text-navy">{c.nom}</p>
+                  </div>
+                  <Badge tone={estCritique ? 'danger' : estSurveillance ? 'warning' : 'success'} size="sm">
+                    {estCritique ? '🔴 Critique' : estSurveillance ? '🟠 Surveillance' : '🟢 Normal'}
+                  </Badge>
+                </div>
+
+                <div className="mt-2 flex items-baseline justify-between">
+                  <span className="text-[11.5px] text-slateink">{c.quartier}</span>
+                  <span className="text-[18px] font-black" style={{ color: c.couleur }}>
+                    {c.niveauActuel} %
+                  </span>
+                </div>
+
+                <ProgressBar value={c.niveauActuel} color={c.couleur} height={6} className="mt-2" />
+
+                <div className="mt-3 flex items-center justify-between border-t border-navy/5 pt-2 text-[10.5px]">
+                  <span className="text-slateink font-medium">Mise à jour : {c.derniereMaj}</span>
+                  <button
+                    onClick={() => simulerBasculeCapteur(c.id)}
+                    className="font-bold text-teal hover:underline"
+                  >
+                    Basculer niveau
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
         <Card className="xl:col-span-2 !p-6">
@@ -202,3 +296,4 @@ export default function Overview() {
     </div>
   )
 }
+

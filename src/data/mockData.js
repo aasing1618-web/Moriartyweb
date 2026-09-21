@@ -61,6 +61,171 @@ export const estimationVidange = {
   ],
 }
 
+/* ------------------------------------------------------------------ */
+/*  Tarification terrain & Grille Configurable                        */
+/* ------------------------------------------------------------------ */
+
+export const grilleTarifaireTerrainDefaut = {
+  tarifBase: 8000,
+  prixParM3: 1500,
+  coutKmChauffeur: 400,
+  coutKmStation: 300,
+  fraisUrgence: 3000,
+  fraisHivernage: 2500,
+  fraisAccesDifficile: 2000,
+  communes: {
+    'Parcelles Assainies': 1.0,
+    'Grand Yoff': 1.0,
+    "Patte d'Oie": 1.0,
+    'Pikine': 1.05,
+    'Guédiawaye': 1.05,
+    'Rufisque': 1.15,
+    'Keur Massar': 1.10,
+    'Dakar Plateau': 1.20,
+  },
+}
+
+export function calculerPrixEstimatifTerrain(params, grille = grilleTarifaireTerrainDefaut) {
+  const {
+    volumeM3 = 8,
+    distanceChauffeurKm = 3,
+    distanceStationKm = 10,
+    estUrgent = false,
+    estHivernage = false,
+    estAccesDifficile = false,
+    commune = 'Parcelles Assainies',
+  } = params
+
+  const base = grille.tarifBase
+  const volCost = volumeM3 * grille.prixParM3
+  const distCost = distanceChauffeurKm * grille.coutKmChauffeur + distanceStationKm * grille.coutKmStation
+  const surg = estUrgent ? grille.fraisUrgence : 0
+  const shiv = estHivernage ? grille.fraisHivernage : 0
+  const sacc = estAccesDifficile ? grille.fraisAccesDifficile : 0
+
+  const subtotal = base + volCost + distCost + surg + shiv + sacc
+  const coef = grille.communes[commune] || 1.0
+  const total = Math.round((subtotal * coef) / 500) * 500 // Arrondi au 500 FCFA près
+
+  return Math.max(12000, total)
+}
+
+/* ------------------------------------------------------------------ */
+/*  Workflow officiel des 7 statuts                                    */
+/* ------------------------------------------------------------------ */
+
+export const STATUTS_OFFICIELS = [
+  { id: 'DEMANDE_CREEE', code: 1, label: 'Demande créée', sublabel: 'Demande enregistrée par le ménage' },
+  { id: 'TARIF_CONFIRME', code: 2, label: 'Tarif confirmé', sublabel: 'Prix estimé et confirmé' },
+  { id: 'MODE_PAIEMENT_CHOISI', code: 3, label: 'Mode de paiement choisi', sublabel: 'Espèces, Wave ou Orange Money' },
+  { id: 'PAIEMENT_VALIDE', code: 4, label: 'Paiement validé', sublabel: 'Code marchand / paiement confirmé' },
+  { id: 'CAMION_ENVOYE', code: 5, label: 'Camion envoyé', sublabel: 'Départ du camion autorisé' },
+  { id: 'INTERVENTION_EN_COURS', code: 6, label: 'Intervention en cours', sublabel: 'Pompage et vidange sur place' },
+  { id: 'VIDANGE_TERMINEE', code: 7, label: 'Vidange terminée', sublabel: 'Dépotage certifié à la station' },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Capteurs de niveau & Surveillance Hivernage                       */
+/* ------------------------------------------------------------------ */
+
+export const capteursFosses = [
+  {
+    id: 'sens-1',
+    nom: 'Fosse Parcelles U24',
+    commune: 'Parcelles Assainies',
+    quartier: 'Parcelles Assainies U24',
+    regardId: 'FT-2401',
+    niveauActuel: 88,
+    seuilCritique: 85,
+    statutAlert: 'critique',
+    statutLabel: 'Critique',
+    couleur: '#D64545',
+    risqueInondation: 'eleve',
+    derniereMaj: 'Il y a 8 min',
+    capaciteM3: 8,
+    client: 'Aminata Diop',
+    telephone: '+221 77 123 45 67',
+    adresse: 'Villa 1187, Parcelles Assainies U24',
+    historique7Jours: [42, 48, 55, 64, 72, 81, 88],
+  },
+  {
+    id: 'sens-2',
+    nom: 'Regard Keur Massar Nord',
+    commune: 'Keur Massar',
+    quartier: 'Keur Massar Village',
+    regardId: 'RG-0912',
+    niveauActuel: 94,
+    seuilCritique: 85,
+    statutAlert: 'critique',
+    statutLabel: 'Critique',
+    couleur: '#D64545',
+    risqueInondation: 'critique',
+    derniereMaj: 'Il y a 3 min',
+    capaciteM3: 12,
+    client: 'Mamadou Ndiaye',
+    telephone: '+221 77 889 00 11',
+    adresse: 'Grande Rue Keur Massar, près marché',
+    historique7Jours: [50, 58, 67, 75, 83, 90, 94],
+  },
+  {
+    id: 'sens-3',
+    nom: 'Fosse Grand Yoff Cité',
+    commune: 'Grand Yoff',
+    quartier: 'Grand Yoff',
+    regardId: 'FT-1044',
+    niveauActuel: 78,
+    seuilCritique: 85,
+    statutAlert: 'surveillance',
+    statutLabel: 'Surveillance',
+    couleur: '#E0A200',
+    risqueInondation: 'moyen',
+    derniereMaj: 'Il y a 25 min',
+    capaciteM3: 6,
+    client: 'Ousmane Sarr',
+    telephone: '+221 78 220 11 45',
+    adresse: 'Cité Millionnaire, Grand Yoff',
+    historique7Jours: [30, 38, 46, 54, 62, 70, 78],
+  },
+  {
+    id: 'sens-4',
+    nom: 'Fosse Patte d’Oie Builders',
+    commune: "Patte d'Oie",
+    quartier: "Patte d'Oie",
+    regardId: 'FT-0811',
+    niveauActuel: 52,
+    seuilCritique: 85,
+    statutAlert: 'normal',
+    statutLabel: 'Normal',
+    couleur: '#1E9E63',
+    risqueInondation: 'faible',
+    derniereMaj: 'Il y a 1h',
+    capaciteM3: 10,
+    client: 'Ndèye Gueye',
+    telephone: '+221 76 909 33 21',
+    adresse: "Patte d'Oie Builders, Villa 42",
+    historique7Jours: [20, 25, 30, 35, 40, 46, 52],
+  },
+  {
+    id: 'sens-5',
+    nom: 'Regard Rufisque Est',
+    commune: 'Rufisque',
+    quartier: 'Rufisque Est',
+    regardId: 'RG-4402',
+    niveauActuel: 89,
+    seuilCritique: 85,
+    statutAlert: 'critique',
+    statutLabel: 'Critique',
+    couleur: '#D64545',
+    risqueInondation: 'eleve',
+    derniereMaj: 'Il y a 12 min',
+    capaciteM3: 10,
+    client: 'GIE Bassin Rufisque',
+    telephone: '+221 77 334 55 66',
+    adresse: 'Canal Est Rufisque',
+    historique7Jours: [45, 52, 60, 71, 79, 84, 89],
+  },
+]
+
 export const creneaux = [
   { id: 'asap', label: 'Dès que possible', detail: 'Sous 45 min', recommande: true },
   { id: 'today', label: "Aujourd'hui", detail: '16h — 18h' },

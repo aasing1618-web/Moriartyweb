@@ -1,73 +1,97 @@
 import { useState } from 'react'
-import { Calculator, Percent, Truck, Factory, Building2, Sliders, Info } from 'lucide-react'
-import { Card, SectionTitle, Badge } from '../../components/ui'
+import { Calculator, Percent, Truck, Factory, Building2, Sliders, Info, Save, CheckCircle2, ShieldAlert, CloudRain } from 'lucide-react'
+import { Card, SectionTitle, Badge, Button } from '../../components/ui'
 import {
   parametresFinanciers,
   commissionCommande as commissionCommandeDefaut,
 } from '../../data/mockData'
+import { usePlateforme } from '../../lib/PlateformeContext.jsx'
 
 const fcfaFormat = (val) =>
   `${Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} FCFA`
 
 export default function Tarification() {
+  const { grilleTarifaire, modifierGrilleTarifaire } = usePlateforme()
   const [volume, setVolume] = useState(8)
   const [distance, setDistance] = useState(12)
+  const [sauvegardeOk, setSauvegardeOk] = useState(false)
 
-  // Paramètres de commission pilotés par le régulateur (état local uniquement).
+  // Paramètres de commission pilotés par le régulateur
   const [commissionVidange, setCommissionVidange] = useState(
     parametresFinanciers.commissionPlateforme
   )
   const [commissionCommande, setCommissionCommande] = useState(commissionCommandeDefaut)
   const [redevanceM3, setRedevanceM3] = useState(parametresFinanciers.redevanceParM3)
 
-  // Calcul du 4e cas personnalisé
-  const distSupplement = Math.max(0, distance - 5)
-  const prixTotal = volume * 3000 + distSupplement * 500
-  const partVidangeur = Math.round(prixTotal * 0.65)
-  const partDelegataire = Math.round(prixTotal * 0.25)
-  const partOnas = Math.round(prixTotal * 0.10)
+  // État des paramètres tarifaires terrain
+  const [formGrille, setFormGrille] = useState(grilleTarifaire)
+
+  const enregistrerParametres = () => {
+    modifierGrilleTarifaire(formGrille)
+    setSauvegardeOk(true)
+    setTimeout(() => setSauvegardeOk(false), 3000)
+  }
+
+  // Calcul dynamique selon les paramètres terrain enregistrés
+  const baseCost = formGrille.tarifBase
+  const volumeCost = volume * formGrille.prixParM3
+  const distanceCost = Math.max(0, distance - 5) * formGrille.coutKmChauffeur
+  const prixTotalCalcul = baseCost + volumeCost + distanceCost
+  const partVidangeur = Math.round(prixTotalCalcul * 0.65)
+  const partDelegataire = Math.round(prixTotalCalcul * 0.25)
+  const partOnas = Math.round(prixTotalCalcul * 0.10)
 
   const exemples = [
     {
-      cas: 'Petite fosse, proche',
-      volume: '4 m³',
+      cas: 'Petite fosse (3 m³), proche (3 km)',
+      volume: '3 m³',
       distance: '3 km',
-      prix: '12 000 FCFA',
-      vidangeur: '7 800 FCFA',
-      delegataire: '3 000 FCFA',
-      onas: '1 200 FCFA',
+      prix: fcfaFormat(formGrille.tarifBase + 3 * formGrille.prixParM3),
+      vidangeur: fcfaFormat((formGrille.tarifBase + 3 * formGrille.prixParM3) * 0.65),
+      delegataire: fcfaFormat((formGrille.tarifBase + 3 * formGrille.prixParM3) * 0.25),
+      onas: fcfaFormat((formGrille.tarifBase + 3 * formGrille.prixParM3) * 0.1),
     },
     {
-      cas: 'Fosse moyenne',
+      cas: 'Fosse moyenne (6 m³), 10 km',
       volume: '6 m³',
       distance: '10 km',
-      prix: '20 500 FCFA',
-      vidangeur: '13 325 FCFA',
-      delegataire: '5 125 FCFA',
-      onas: '2 050 FCFA',
+      prix: fcfaFormat(formGrille.tarifBase + 6 * formGrille.prixParM3 + 5 * formGrille.coutKmChauffeur),
+      vidangeur: fcfaFormat((formGrille.tarifBase + 6 * formGrille.prixParM3 + 5 * formGrille.coutKmChauffeur) * 0.65),
+      delegataire: fcfaFormat((formGrille.tarifBase + 6 * formGrille.prixParM3 + 5 * formGrille.coutKmChauffeur) * 0.25),
+      onas: fcfaFormat((formGrille.tarifBase + 6 * formGrille.prixParM3 + 5 * formGrille.coutKmChauffeur) * 0.1),
     },
     {
-      cas: 'Grande fosse, station éloignée',
+      cas: 'Grande fosse (10 m³), station éloignée (18 km)',
       volume: '10 m³',
       distance: '18 km',
-      prix: '36 500 FCFA',
-      vidangeur: '23 725 FCFA',
-      delegataire: '9 125 FCFA',
-      onas: '3 650 FCFA',
+      prix: fcfaFormat(formGrille.tarifBase + 10 * formGrille.prixParM3 + 13 * formGrille.coutKmChauffeur),
+      vidangeur: fcfaFormat((formGrille.tarifBase + 10 * formGrille.prixParM3 + 13 * formGrille.coutKmChauffeur) * 0.65),
+      delegataire: fcfaFormat((formGrille.tarifBase + 10 * formGrille.prixParM3 + 13 * formGrille.coutKmChauffeur) * 0.25),
+      onas: fcfaFormat((formGrille.tarifBase + 10 * formGrille.prixParM3 + 13 * formGrille.coutKmChauffeur) * 0.1),
     },
   ]
 
   return (
     <div className="space-y-6">
+      {/* Notifications de confirmation */}
+      {sauvegardeOk && (
+        <div className="flex items-center gap-3 rounded-2xl bg-success/10 border border-success/30 p-4 text-success font-bold text-[13px]">
+          <CheckCircle2 size={20} />
+          <span>
+            Paramètres de tarification terrain enregistrés ! L'estimation automatique des prix est mise à jour sur l'application Ménage et Opérateur en temps réel.
+          </span>
+        </div>
+      )}
+
       {/* Formule de calcul */}
       <Card className="relative overflow-hidden !p-7">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
             <span className="inline-flex items-center gap-2 rounded-full bg-teal/10 px-3 py-1 text-[12px] font-semibold text-teal">
               <Calculator size={14} strokeWidth={2.2} />
-              Formule de tarification réglementée
+              Formule de tarification terrain réglementée
             </span>
-            <h2 className="text-[20px] font-bold text-navy">Structure du tarif unifié</h2>
+            <h2 className="text-[20px] font-bold text-navy">Structure du tarif unifié (Données du Terrain)</h2>
           </div>
           <Badge tone="teal" icon={Percent}>
             Clé 65 / 25 / 10
@@ -75,17 +99,109 @@ export default function Tarification() {
         </div>
 
         <div className="mt-5 rounded-2xl bg-navy p-5 text-white shadow-lift">
-          <p className="font-mono text-[16px] font-bold tracking-wide text-amber md:text-[18px]">
-            Prix = (Volume en m³ × 3 000 FCFA) + (max(0, Distance − 5 km) × 500 FCFA)
+          <p className="font-mono text-[15px] sm:text-[17px] font-bold tracking-wide text-amber">
+            Tarif estimatif = Base ({fcfaFormat(formGrille.tarifBase)}) + (Vol × {fcfaFormat(formGrille.prixParM3)}) + (Dist × {fcfaFormat(formGrille.coutKmChauffeur)}) + Suppléments
           </p>
         </div>
 
         <p className="mt-3 flex items-center gap-1.5 text-[12px] text-slateink">
           <Info size={14} className="shrink-0 text-teal" />
           <span>
-            Modèle de tarification indicatif — un seul paiement du ménage, réparti automatiquement entre les trois acteurs de la chaîne.
+            Modèle de tarification basé sur le terrain — calcul automatique du tarif estimatif, suivi de la confirmation du vidangeur.
           </span>
         </p>
+      </Card>
+
+      {/* SECTION ADMINISTRATION DES PARAMÈTRES TARIFS TERRAIN */}
+      <Card className="!p-7 border-2 border-teal/20 bg-gradient-to-br from-white to-teal/[0.03]">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-navy/10 pb-5">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-teal/10 px-3 py-1 text-[12px] font-bold text-teal mb-2">
+              <Sliders size={14} /> Administration des Données de Terrain
+            </span>
+            <h2 className="text-[20px] font-bold text-navy">Paramètres Tarifaires Configurbles (Sans modification de code)</h2>
+            <p className="text-[12.5px] text-slateink mt-1">
+              Ces données alimentent directement la logique de calcul du « Prix Estimatif » ménage.
+            </p>
+          </div>
+          <Button size="md" icon={Save} onClick={enregistrerParametres}>
+            Enregistrer les paramètres
+          </Button>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <label className="block bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+            <span className="block text-[11.5px] font-extrabold uppercase text-slateink mb-1.5">
+              Tarif de Base (FCFA)
+            </span>
+            <input
+              type="number"
+              value={formGrille.tarifBase}
+              onChange={(e) => setFormGrille({ ...formGrille, tarifBase: Number(e.target.value) })}
+              className="w-full rounded-xl border border-navy/15 px-3 py-2 text-[16px] font-bold text-navy outline-none focus:border-teal"
+            />
+          </label>
+
+          <label className="block bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+            <span className="block text-[11.5px] font-extrabold uppercase text-slateink mb-1.5">
+              Prix par m³ de fosse (FCFA / m³)
+            </span>
+            <input
+              type="number"
+              value={formGrille.prixParM3}
+              onChange={(e) => setFormGrille({ ...formGrille, prixParM3: Number(e.target.value) })}
+              className="w-full rounded-xl border border-navy/15 px-3 py-2 text-[16px] font-bold text-navy outline-none focus:border-teal"
+            />
+          </label>
+
+          <label className="block bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+            <span className="block text-[11.5px] font-extrabold uppercase text-slateink mb-1.5">
+              Coût kilométrique (FCFA / km)
+            </span>
+            <input
+              type="number"
+              value={formGrille.coutKmChauffeur}
+              onChange={(e) => setFormGrille({ ...formGrille, coutKmChauffeur: Number(e.target.value) })}
+              className="w-full rounded-xl border border-navy/15 px-3 py-2 text-[16px] font-bold text-navy outline-none focus:border-teal"
+            />
+          </label>
+
+          <label className="block bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+            <span className="block text-[11.5px] font-extrabold uppercase text-slateink mb-1.5">
+              Supplément Urgence (FCFA)
+            </span>
+            <input
+              type="number"
+              value={formGrille.fraisUrgence}
+              onChange={(e) => setFormGrille({ ...formGrille, fraisUrgence: Number(e.target.value) })}
+              className="w-full rounded-xl border border-navy/15 px-3 py-2 text-[16px] font-bold text-navy outline-none focus:border-teal"
+            />
+          </label>
+
+          <label className="block bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+            <span className="block text-[11.5px] font-extrabold uppercase text-slateink mb-1.5">
+              Supplément Hivernage (FCFA)
+            </span>
+            <input
+              type="number"
+              value={formGrille.fraisHivernage}
+              onChange={(e) => setFormGrille({ ...formGrille, fraisHivernage: Number(e.target.value) })}
+              className="w-full rounded-xl border border-navy/15 px-3 py-2 text-[16px] font-bold text-navy outline-none focus:border-teal"
+            />
+          </label>
+
+          <label className="block bg-white p-4 rounded-2xl border border-navy/10 shadow-card">
+            <span className="block text-[11.5px] font-extrabold uppercase text-slateink mb-1.5">
+              Supplément Accès Difficile (FCFA)
+            </span>
+            <input
+              type="number"
+              value={formGrille.fraisAccesDifficile}
+              onChange={(e) => setFormGrille({ ...formGrille, fraisAccesDifficile: Number(e.target.value) })}
+              className="w-full rounded-xl border border-navy/15 px-3 py-2 text-[16px] font-bold text-navy outline-none focus:border-teal"
+            />
+          </label>
+        </div>
       </Card>
 
       {/* Clé de répartition (3 cartes + barre empilée) */}
@@ -230,14 +346,14 @@ export default function Tarification() {
                 </tr>
               ))}
               
-              {/* 4e exemple personnalisé */}
+              {/* exemple personnalisé */}
               <tr className="bg-teal/[0.06] border-t-2 border-teal/30">
                 <td className="py-4 px-4 font-bold text-navy flex items-center gap-2">
-                  <Badge tone="teal" size="sm">4ᵉ exemple (personnalisé)</Badge>
+                  <Badge tone="teal" size="sm">Simulation actuelle</Badge>
                 </td>
                 <td className="py-4 px-4 font-bold text-navy">{volume} m³</td>
                 <td className="py-4 px-4 font-bold text-navy">{distance} km</td>
-                <td className="py-4 px-4 font-extrabold text-[15px] text-navy">{fcfaFormat(prixTotal)}</td>
+                <td className="py-4 px-4 font-extrabold text-[15px] text-navy">{fcfaFormat(prixTotalCalcul)}</td>
                 <td className="py-4 px-4 font-extrabold text-[14px] text-teal">{fcfaFormat(partVidangeur)}</td>
                 <td className="py-4 px-4 font-extrabold text-[14px] text-royal">{fcfaFormat(partDelegataire)}</td>
                 <td className="py-4 px-4 font-extrabold text-[14px] text-amber-600">{fcfaFormat(partOnas)}</td>
@@ -246,101 +362,7 @@ export default function Tarification() {
           </table>
         </div>
       </Card>
-
-      {/* Paramètres de commission — pilotés par l'ONAS */}
-      <Card className="!p-7">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-2 rounded-full bg-amber/12 px-3 py-1 text-[12px] font-semibold text-amber-600">
-              <Sliders size={14} strokeWidth={2.2} />
-              Paramètres de commission
-            </span>
-            <h2 className="text-[20px] font-bold text-navy">Commission plateforme</h2>
-            <p className="text-[13px] text-slateink">
-              Paramétrable par l’ONAS — s’applique à chaque vidange tracée et à chaque commande de
-              sous-produits.
-            </p>
-          </div>
-          <Badge tone="amber" icon={Percent}>
-            Modifiable par le régulateur
-          </Badge>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
-          <label className="block">
-            <span className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-wide text-slateink">
-              Commission par vidange (FCFA)
-            </span>
-            <input
-              type="number"
-              value={commissionVidange}
-              onChange={(e) => setCommissionVidange(Number(e.target.value))}
-              className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3 text-[16px] font-bold text-navy shadow-card outline-none transition focus:border-teal"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-wide text-slateink">
-              Commission par commande (FCFA)
-            </span>
-            <input
-              type="number"
-              value={commissionCommande}
-              onChange={(e) => setCommissionCommande(Number(e.target.value))}
-              className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3 text-[16px] font-bold text-navy shadow-card outline-none transition focus:border-teal"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1.5 block text-[11.5px] font-semibold uppercase tracking-wide text-slateink">
-              Redevance de dépotage (FCFA / m³)
-            </span>
-            <input
-              type="number"
-              value={redevanceM3}
-              onChange={(e) => setRedevanceM3(Number(e.target.value))}
-              className="w-full rounded-2xl border border-navy/10 bg-white px-4 py-3 text-[16px] font-bold text-navy shadow-card outline-none transition focus:border-teal"
-            />
-          </label>
-        </div>
-
-        <div className="mt-5 rounded-2xl bg-mist p-5">
-          <p className="text-[12px] font-semibold uppercase tracking-wide text-slateink">
-            Simulation sur une vidange de {volume} m³ à {fcfaFormat(prixTotal)}
-          </p>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {[
-              {
-                label: 'Part prestation — vidangeur',
-                valeur: fcfaFormat(
-                  Math.max(0, prixTotal - volume * redevanceM3 - commissionVidange)
-                ),
-                couleur: 'text-teal',
-              },
-              {
-                label: 'Redevance de dépotage — délégataire',
-                valeur: fcfaFormat(volume * redevanceM3),
-                couleur: 'text-navy',
-              },
-              {
-                label: 'Commission — plateforme',
-                valeur: fcfaFormat(commissionVidange),
-                couleur: 'text-amber-600',
-              },
-            ].map((p) => (
-              <div key={p.label} className="rounded-2xl bg-white p-4 shadow-card">
-                <p className="text-[11.5px] leading-snug text-slateink">{p.label}</p>
-                <p className={`mt-1.5 text-[18px] font-extrabold ${p.couleur}`}>{p.valeur}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 flex items-start gap-2 text-[11.5px] leading-relaxed text-slateink">
-            <Info size={14} className="mt-0.5 shrink-0 text-teal" strokeWidth={2.2} />
-            La part de l’ONAS n’apparaît pas dans cette répartition : elle remonte du délégataire
-            par contrat de délégation, hors application.
-          </p>
-        </div>
-      </Card>
     </div>
   )
 }
+
